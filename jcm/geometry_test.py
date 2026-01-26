@@ -3,12 +3,14 @@ import jax.tree_util as jtu
 import jax.numpy as jnp
 from jcm.geometry import get_terrain
 
+
+## TODO: Make sure these tests are covered for either Terrain of speedy coords
 class TestGeometryUnit(unittest.TestCase):
 
     def setUp(self):
         global ix, il, kx, Geometry
         from jcm.terrain_data import TerrainData
-from jcm.utils import get_coords
+        from jcm.utils import get_coords
         ix, il, kx = 96, 48, 8
 
     def test_from_coords(self):

@@ -19,8 +19,10 @@ class TestHumidityUnit(unittest.TestCase):
         from jcm.physics.speedy.params import Parameters
         parameters = Parameters.default()
         from jcm.terrain_data import TerrainData
-from jcm.utils import get_coords
+        from jcm.utils import get_coords
         from jcm.physics.speedy.test_utils import convert_to_speedy_latitudes
+
+        ## TODO: FIX reference to geometry
         default_geometry = convert_to_speedy_latitudes(Geometry.from_grid_shape(nodal_shape=(ix, il), num_levels=kx))
 
         self.temp_standard = jnp.ones((kx,ix,il))*273

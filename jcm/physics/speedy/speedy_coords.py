@@ -1,10 +1,3 @@
-"""SPEEDY-specific coordinate caching.
-
-Date: 2026-01-26
-
-This module contains coordinate system transformations specific to SPEEDY physics.
-SpeedyCoords are computed once from a CoordinateSystem and cached in PhysicsData.
-"""
 import jax.numpy as jnp
 import tree_math
 from dinosaur.coordinate_systems import CoordinateSystem
@@ -34,6 +27,7 @@ class SpeedyCoords:
         sia: Sin of latitude (il,)
         coa: Cos of latitude (il,)
     """
+    
     # Vertical
     hsg: jnp.ndarray
     fsg: jnp.ndarray

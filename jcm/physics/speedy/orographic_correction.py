@@ -247,6 +247,7 @@ def get_orographic_correction_tendencies(
 
 def apply_orographic_corrections_to_state(
     state: PhysicsState,
+    physics_data: PhysicsData,
     forcing: ForcingData,
     terrain: TerrainData,
     parameters: Parameters,

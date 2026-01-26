@@ -37,9 +37,11 @@ class TestLongwave(unittest.TestCase):
         from jcm.forcing import ForcingData
         from jcm.physics.speedy.longwave_radiation import get_downward_longwave_rad_fluxes, get_upward_longwave_rad_fluxes, radset
         from jcm.terrain_data import TerrainData
-from jcm.utils import get_coords
+        from jcm.utils import get_coords
         from jcm.physics.speedy.test_utils import convert_to_speedy_latitudes
         parameters = Parameters.default()
+
+        ## TODO: FIX reference to geometry
         geometry = convert_to_speedy_latitudes(Geometry.from_grid_shape(nodal_shape=(ix, il), num_levels=kx))
 
     def test_downward_longwave_rad_fluxes(self):

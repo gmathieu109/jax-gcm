@@ -266,7 +266,7 @@ def get_zonal_average_fields(
 
     # Solar radiation at the top
     topsr = jnp.zeros(il)
-    topsr = solar(physics_data.date.tyear,4*solc,terrain=terrain)
+    topsr = solar(physics_data.date.tyear,physics_data,4*solc,terrain=terrain)
 
     def compute_fields(sia_j, coa_j, topsr_j):
         flat2 = 1.5 * sia_j ** 2 - 0.5
@@ -408,7 +408,7 @@ def clouds(operand):
     return (state, physics_data, parameters, forcing, terrain, physics_tendencies)
 
 @jit
-def solar(tyear, csol=4.*solc, terrain: TerrainData=None):
+def solar(tyear, physics_data: PhysicsData, csol=4.*solc, terrain: TerrainData=None):
     """Calculate the daily-average insolation at the top of the atmosphere as a function of latitude.
     
     Parameters

@@ -16,7 +16,6 @@ class TestSurfaceFluxesUnit(unittest.TestCase):
         from jcm.physics_interface import PhysicsState, PhysicsTendency
         from jcm.physics.speedy.params import Parameters
         from jcm.terrain_data import TerrainData
-from jcm.utils import get_coords
         from jcm.physics.speedy.test_utils import convert_to_speedy_latitudes
         from jcm.constants import grav
         parameters = Parameters.default()
@@ -452,7 +451,6 @@ class TestAquaplanetSurfaceFluxes(unittest.TestCase):
         from jcm.physics_interface import PhysicsState, PhysicsTendency
         from jcm.physics.speedy.params import Parameters
         from jcm.terrain_data import TerrainData
-from jcm.utils import get_coords
         from jcm.physics.speedy.test_utils import convert_to_speedy_latitudes
         from jcm.constants import grav
         parameters = Parameters.default()

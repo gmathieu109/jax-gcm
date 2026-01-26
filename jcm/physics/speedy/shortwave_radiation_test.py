@@ -17,8 +17,10 @@ class TestSolar(unittest.TestCase):
         global solar, geometry
         from jcm.physics.speedy.shortwave_radiation import solar
         from jcm.terrain_data import TerrainData
-from jcm.utils import get_coords
+        from jcm.utils import get_coords
         from jcm.physics.speedy.test_utils import convert_to_speedy_latitudes
+
+        ## TODO: FIX reference to geometry
         geometry = convert_to_speedy_latitudes(Geometry.from_grid_shape(nodal_shape=(ix, il), num_levels=kx))
 
     def test_solar(self):
@@ -138,16 +140,18 @@ class TestShortWaveRadiation(unittest.TestCase):
         from jcm.physics.speedy.physical_constants import epssw, solc
         from jcm.physics.speedy.params import Parameters
         from jcm.terrain_data import TerrainData
-from jcm.utils import get_coords
+        from jcm.utils import get_coords
         from jcm.physics.speedy.test_utils import convert_to_speedy_latitudes
         parameters = Parameters.default()
         forcing = ForcingData.zeros((ix, il))
+
+        ## TODO: FIX reference to geometry
         geometry = convert_to_speedy_latitudes(Geometry.from_grid_shape(nodal_shape=(ix, il), num_levels=kx))
 
     # FIXME: currently testing against itself, needs updated values from speedy.f90
     def test_shortwave_radiation(self):
         from jcm.terrain_data import TerrainData
-from jcm.utils import get_coords
+        from jcm.utils import get_coords
         from jcm.physics.speedy.test_utils import convert_to_speedy_latitudes
         qa = 0.5 * 1000. * jnp.array([0., 0.00035438, 0.00347954, 0.00472337, 0.00700214,0.01416442,0.01782708, 0.0216505])
         qsat = 1000. * jnp.array([0., 0.00037303, 0.00366268, 0.00787228, 0.01167024, 0.01490992, 0.01876534, 0.02279])
@@ -167,6 +171,7 @@ from jcm.utils import get_coords
         iptop = np.ones(xy, dtype=int) * jnp.linspace(0,kx,il).astype(int)[jnp.newaxis,:] + 1
         fmask = .7 * np.ones(xy)
 
+        ## TODO: FIX reference to geometry
         geometry = convert_to_speedy_latitudes(Geometry.from_grid_shape(nodal_shape=(ix, il), num_levels=kx, fmask=fmask))
 
         surface_flux = SurfaceFluxData.zeros(xy)
@@ -384,7 +389,7 @@ from jcm.utils import get_coords
 
     def test_clouds_gradients_isnan_with_realistic_values_grad(self):
         from jcm.terrain_data import TerrainData
-from jcm.utils import get_coords
+        from jcm.utils import get_coords
         from jcm.physics.speedy.test_utils import convert_to_speedy_latitudes
 
         qa = 0.5 * 1000. * jnp.array([0., 0.00035438, 0.00347954, 0.00472337, 0.00700214,0.01416442,0.01782708, 0.0216505])
@@ -404,6 +409,7 @@ from jcm.utils import get_coords
         iptop = 8 * jnp.ones(xy, dtype=int)
         fmask = .7 * jnp.ones(xy)
 
+        ## TODO: FIX reference to geometry
         geometry = convert_to_speedy_latitudes(Geometry.from_grid_shape(nodal_shape=(ix, il), num_levels=kx, fmask=fmask))
 
         surface_flux = SurfaceFluxData.zeros(xy)

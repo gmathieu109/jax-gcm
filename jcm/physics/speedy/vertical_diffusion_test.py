@@ -16,7 +16,7 @@ class Test_VerticalDiffusion_Unit(unittest.TestCase):
         from jcm.physics.speedy.physics_data import HumidityData, ConvectionData, PhysicsData
         from jcm.physics.speedy.params import Parameters
         from jcm.terrain_data import TerrainData
-from jcm.utils import get_coords
+        from jcm.utils import get_coords
         geometry = TerrainData.single_column(num_levels=kx)
         parameters = Parameters.default()
         from jcm.forcing import ForcingData

@@ -14,10 +14,12 @@ class TestConvectionUnit(unittest.TestCase):
         from jcm.forcing import ForcingData
         from jcm.physics.speedy.params import Parameters
         from jcm.terrain_data import TerrainData
-from jcm.utils import get_coords
+        from jcm.utils import get_coords
         from jcm.physics.speedy.test_utils import convert_to_speedy_latitudes
         parameters = Parameters.default()
         forcing = ForcingData.zeros((ix, il))
+
+        ## TODO: FIX reference to geometry -- should be in speedy coords 
         geometry = convert_to_speedy_latitudes(Geometry.from_grid_shape(nodal_shape=(ix, il), num_levels=kx))
         fsg = physics_data.speedy_coords.fsg
         grdscp = physics_data.speedy_coords.grdscp

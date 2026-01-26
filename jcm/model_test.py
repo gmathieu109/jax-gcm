@@ -12,12 +12,13 @@ class TestModelUnit(unittest.TestCase):
         from jcm.physics.speedy.speedy_physics import SpeedyPhysics
         from jcm.physics.speedy.params import Parameters
 
+    ## update these tests to use the correct geometry which is now in coords or terrain data.
     def test_held_suarez_model(self):
         from jcm.physics.held_suarez.held_suarez_physics import HeldSuarezPhysics
         from jcm.model import Model
         from jcm.terrain_data import TerrainData
-from jcm.utils import get_coords
-        geometry = TerrainData.from_coords(get_coords(spectral_truncation(spectral_truncation=31, num_levels=8)
+        from jcm.utils import get_coords
+        geometry = TerrainData.from_coords(get_coords(spectral_truncation(spectral_truncation=31, num_levels=8)))
         model = Model(
             geometry=geometry,
             time_step=180,
@@ -185,12 +186,14 @@ from jcm.utils import get_coords
     def test_speedy_model_param_gradients_isnan_vjp(self):
         from jcm.model import Model
         from jcm.terrain_data import TerrainData
-from jcm.utils import get_coords
+        from jcm.utils import get_coords
         from jcm.forcing import ForcingData
         from jcm.utils import ones_like
 
         from importlib import resources
         data_dir = resources.files('jcm.data.bc.t30.clim')
+
+        ## TODO: Fix reference to geometry
         geometry = Geometry.from_file(data_dir / 'terrain.nc', target_resolution=31)
         forcing = ForcingData.from_file(data_dir / 'forcing.nc', target_resolution=31)
 
@@ -212,12 +215,14 @@ from jcm.utils import get_coords
     def test_speedy_model_param_gradients_isnan_jvp(self):
         from jcm.model import Model
         from jcm.terrain_data import TerrainData
-from jcm.utils import get_coords
+        from jcm.utils import get_coords
         from jcm.forcing import ForcingData
         from jcm.utils import ones_like_tangent
         
         from importlib import resources
         data_dir = resources.files('jcm.data.bc.t30.clim')
+
+        ## TODO: fix reference to geometry
         geometry = Geometry.from_file(data_dir / 'terrain.nc', target_resolution=31)
         forcing = ForcingData.from_file(data_dir / 'forcing.nc', target_resolution=31)
 
