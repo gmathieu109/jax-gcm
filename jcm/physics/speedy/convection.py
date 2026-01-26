@@ -15,6 +15,7 @@ from jcm.physics.speedy.physical_constants import p0, alhc, grav, cp
 def diagnose_convection(
     psa, se, qa, qsat,
     parameters: Parameters,
+    physics_data: PhysicsData,
     forcing: ForcingData=None,
     terrain: TerrainData=None
 ) -> tuple[jnp.ndarray, jnp.ndarray]:
@@ -140,7 +141,7 @@ def get_convection_tendencies(
     rdps=2.0/(1.0 - parameters.convection.psmin)
 
     # 2. Check of conditions for convection
-    iptop, qdif = diagnose_convection(psa, se, qa, qsat, parameters, forcing, terrain)
+    iptop, qdif = diagnose_convection(psa, se, qa, qsat, parameters, physics_data, forcing, terrain)
 
     # 3. Convection over selected grid-points
     mask = ~(iptop == kx+1)
