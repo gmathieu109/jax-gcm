@@ -27,12 +27,24 @@ TRUNCATION_FOR_NODAL_SHAPE = {
 VALID_NODAL_SHAPES = tuple(TRUNCATION_FOR_NODAL_SHAPE.keys())
 VALID_TRUNCATIONS = tuple(TRUNCATION_FOR_NODAL_SHAPE.values())
 
-def get_coords(layers=8, spectral_truncation=31, nodal_shape=None, spmd_mesh=None) -> CoordinateSystem:
+def get_coords(sigma_boundaries, spectral_truncation=31, nodal_shape=None, spmd_mesh=None) -> CoordinateSystem:
     f"""
-    Returns a CoordinateSystem object for the given number of layers and one of the following horizontal resolutions: {VALID_TRUNCATIONS}.
+    Returns a CoordinateSystem object for the given sigma boundaries and horizontal resolution.
+
+    This is a physics-agnostic function. Use physics-specific helpers for default sigma boundaries:
+    - jcm.physics.speedy.utils.get_speedy_coords()
+    - jcm.physics.held_suarez.utils.get_held_suarez_coords()
+
+    Args:
+        sigma_boundaries: Array of sigma layer boundaries (required)
+        spectral_truncation: Spectral truncation number (default 31)
+        nodal_shape: Optional nodal shape (ix, il) to infer spectral_truncation
+        spmd_mesh: Optional SPMD mesh for parallelization
+
+    Returns:
+        CoordinateSystem object
     """
     from dinosaur.spherical_harmonic import FastSphericalHarmonics, RealSphericalHarmonics
-    from jcm.physics.speedy.physical_constants import SIGMA_LAYER_BOUNDARIES
 
     if nodal_shape is not None:
         if nodal_shape not in VALID_NODAL_SHAPES:
@@ -41,9 +53,6 @@ def get_coords(layers=8, spectral_truncation=31, nodal_shape=None, spmd_mesh=Non
     elif spectral_truncation not in VALID_TRUNCATIONS:
         raise ValueError(f"Invalid horizontal resolution: {spectral_truncation}. Must be one of: {VALID_TRUNCATIONS}.")
     horizontal_grid = getattr(dinosaur.spherical_harmonic.Grid, f'T{spectral_truncation}')
-
-    if layers not in SIGMA_LAYER_BOUNDARIES:
-        raise ValueError(f"Invalid number of layers: {layers}. Must be one of: {tuple(SIGMA_LAYER_BOUNDARIES.keys())}")
 
     physics_specs = PrimitiveEquationsSpecs.from_si(scale=SI_SCALE)
 
@@ -56,7 +65,7 @@ def get_coords(layers=8, spectral_truncation=31, nodal_shape=None, spmd_mesh=Non
     return CoordinateSystem(
         horizontal=horizontal_grid(radius=physics_specs.radius,
                                    spherical_harmonics_impl=spherical_harmonics_impl),
-        vertical=dinosaur.sigma_coordinates.SigmaCoordinates(SIGMA_LAYER_BOUNDARIES[layers]),
+        vertical=dinosaur.sigma_coordinates.SigmaCoordinates(sigma_boundaries),
         spmd_mesh=spmd_mesh
     )
 

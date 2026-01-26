@@ -2,7 +2,6 @@ import jax.numpy as jnp
 from typing import Tuple
 from dinosaur.scales import units
 from dinosaur import coordinate_systems
-from jcm.utils import get_coords
 from jcm.terrain_data import TerrainData
 from jcm.forcing import ForcingData
 from jcm.physics_interface import PhysicsState, PhysicsTendency, Physics
@@ -13,7 +12,7 @@ Quantity = units.Quantity
 
 class HeldSuarezPhysics(Physics):
     def __init__(self,
-        coords: coordinate_systems.CoordinateSystem = get_coords(),
+        coords: coordinate_systems.CoordinateSystem = None,
         sigma_b: Quantity = 0.7,
         kf: Quantity = 1 / (1 * units.day),
         ka: Quantity = 1 / (40 * units.day),
@@ -26,7 +25,7 @@ class HeldSuarezPhysics(Physics):
         """Initialize Held-Suarez.
 
         Args:
-            coords: horizontal and vertical discretization
+            coords: horizontal and vertical discretization. If None, will be set by Model.
             sigma_b: sigma level of effective planetary boundary layer.
             kf: coefficient of friction for Rayleigh drag.
             ka: coefficient of thermal relaxation in upper atmosphere.
@@ -37,6 +36,10 @@ class HeldSuarezPhysics(Physics):
             dThz: vertical temperature variation of radiative equilibrium.
 
         """
+        if coords is None:
+            from jcm.physics.held_suarez.utils import get_held_suarez_coords
+            coords = get_held_suarez_coords()
+
         self.coords = coords
         self.sigma_b = sigma_b
         self.kf = PHYSICS_SPECS.nondimensionalize(kf)

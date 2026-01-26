@@ -20,7 +20,7 @@ from jcm.date import DateData
 from jcm.forcing import ForcingData, default_forcing
 from jcm.physics_interface import PhysicsState, Physics, get_physical_tendencies, dynamics_state_to_physics_state
 from jcm.physics.speedy.speedy_physics import SpeedyPhysics
-from jcm.utils import DYNAMICS_UNITS_TABLE_CSV_PATH, get_coords
+from jcm.utils import DYNAMICS_UNITS_TABLE_CSV_PATH
 from jcm.diffusion import DiffusionFilter
 import pandas as pd
 from functools import partial
@@ -72,7 +72,8 @@ class Predictions:
         physics_predictions = float0s_to_nans(self.physics)
 
         nodal_shape = dynamics_predictions.u_wind.shape[1:]
-        coords = get_coords(layers=nodal_shape[0], nodal_shape=nodal_shape[1:])
+        from jcm.physics.speedy.utils import get_speedy_coords
+        coords = get_speedy_coords(layers=nodal_shape[0], nodal_shape=nodal_shape[1:])
 
         # prepare physics predictions for xarray conversion
         # (e.g. separate multi-channel fields so they are compatible with data_to_xarray)
@@ -221,7 +222,11 @@ class Model:
         self.dt = self.physics_specs.nondimensionalize(self.dt_si)
 
         # Store coords - used by dynamics and physics
-        self.coords = coords if coords is not None else get_coords(spmd_mesh=spmd_mesh)
+        if coords is None:
+            # Default to SPEEDY coords since that's the default physics
+            from jcm.physics.speedy.utils import get_speedy_coords
+            coords = get_speedy_coords(spmd_mesh=spmd_mesh)
+        self.coords = coords
 
         # Store terrain (boundary conditions)
         self.terrain = terrain if terrain is not None else TerrainData.aquaplanet(self.coords)
