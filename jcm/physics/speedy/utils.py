@@ -4,7 +4,7 @@ Date: 2026-01-26
 """
 from dinosaur.coordinate_systems import CoordinateSystem
 from jcm.physics.speedy.physical_constants import SIGMA_LAYER_BOUNDARIES
-from jcm.utils import get_coords as _get_coords
+from jcm.utils import get_coords
 
 
 def get_speedy_coords(layers=8, spectral_truncation=31, nodal_shape=None, spmd_mesh=None) -> CoordinateSystem:
@@ -25,7 +25,7 @@ def get_speedy_coords(layers=8, spectral_truncation=31, nodal_shape=None, spmd_m
     if layers not in SIGMA_LAYER_BOUNDARIES:
         raise ValueError(f"SPEEDY physics supports {list(SIGMA_LAYER_BOUNDARIES.keys())} layers, got {layers}")
 
-    return _get_coords(
+    return get_coords(
         sigma_boundaries=SIGMA_LAYER_BOUNDARIES[layers],
         spectral_truncation=spectral_truncation,
         nodal_shape=nodal_shape,

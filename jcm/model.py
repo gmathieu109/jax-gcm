@@ -225,7 +225,7 @@ class Model:
         if coords is None:
             # Default to SPEEDY coords since that's the default physics
             from jcm.physics.speedy.utils import get_speedy_coords
-            coords = get_speedy_coords(spmd_mesh=spmd_mesh)
+            coords = get_speedy_coords(layers=8, spectral_truncation=31,spmd_mesh=spmd_mesh)
         self.coords = coords
 
         # Store terrain (boundary conditions)
