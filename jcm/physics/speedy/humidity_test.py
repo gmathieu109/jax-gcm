@@ -17,13 +17,11 @@ class TestHumidityUnit(unittest.TestCase):
         from jcm.physics.speedy.humidity import get_qsat, spec_hum_to_rel_hum, rel_hum_to_spec_hum
         from jcm.forcing import ForcingData
         from jcm.physics.speedy.params import Parameters
-        parameters = Parameters.default()
-        from jcm.terrain_data import TerrainData
-        # from jcm.physics.speedy.test_utils import convert_to_speedy_latitudes
         from jcm.physics.speedy.utils import get_speedy_coords
         from jcm.terrain_data import TerrainData
         from jcm.physics.speedy.speedy_coords import speedy_coords_from_coordinate_system
 
+        parameters = Parameters.default()
         coords = get_speedy_coords(layers=kx, nodal_shape=(ix, il))
         terrain = TerrainData.aquaplanet(coords)
         speedy_coords = speedy_coords_from_coordinate_system(coords)

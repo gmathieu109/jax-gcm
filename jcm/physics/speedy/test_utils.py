@@ -1,10 +1,11 @@
 import jax.numpy as jnp
 from jcm.terrain_data import TerrainData
-from jcm.utils import get_coords
+from jcm.physics.speedy.speedy_coords import SpeedyCoords
+from typing import Tuple
 
-def convert_to_speedy_latitudes(terrain: TerrainData) -> Geometry:
+def convert_to_speedy_latitudes(terrain: TerrainData, speedy_coords: SpeedyCoords) -> Tuple[TerrainData, SpeedyCoords]:
     # Recompute horizontal fields for speedy latitudes
-    il = geometry.nodal_shape[2]
+    il = terrain.orog.shape[1]
     iy = (il + 1)//2
     j = jnp.arange(1, iy + 1)
     sia_half = jnp.cos(jnp.pi * (j - 0.25) / (il + 0.5))
@@ -15,4 +16,4 @@ def convert_to_speedy_latitudes(terrain: TerrainData) -> Geometry:
     # Changing latitudes makes phis0 incorrect unless orography is flat
     phis0 = terrain.phis0 if jnp.allclose(terrain.orog, terrain.orog[0,0]) else jnp.full_like(terrain.phis0, jnp.nan)
     
-    return geometry.replace(phis0=phis0, radang=radang, sia=sia, coa=coa)
+    return terrain.copy(phis0=phis0), speedy_coords.copy(radang=radang, sia=sia, coa=coa)

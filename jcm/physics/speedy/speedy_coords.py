@@ -42,6 +42,33 @@ class SpeedyCoords:
     sia: jnp.ndarray
     coa: jnp.ndarray
 
+    def copy(self,
+            hsg=None,
+            fsg=None,
+            dhs=None,
+            sigl=None,
+            grdsig=None,
+            grdscp=None,
+            wvi=None,
+            radang=None,
+            sia=None,
+            coa=None):
+        """
+        Copy an instance of SpeedyCoords
+        """
+
+        return SpeedyCoords(
+            hsg=hsg if hsg is not None else self.hsg,
+            fsg=fsg if fsg is not None else self.fsg,
+            dhs=dhs if dhs is not None else self.dhs,
+            sigl=sigl if sigl is not None else self.sigl,
+            grdsig=grdsig if grdsig is not None else self.grdsig,
+            grdscp=grdscp if grdscp is not None else self.grdscp,
+            wvi=wvi if wvi is not None else self.wvi,
+            radang=radang if radang is not None else self.radang,
+            sia=sia if sia is not None else self.sia,
+            coa=coa if coa is not None else self.coa
+        )
 
 def compute_vertical_coords(kx: int):
     """Compute SPEEDY vertical coordinate transformations.

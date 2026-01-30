@@ -8,6 +8,7 @@ from jcm.physics.speedy.params import Parameters
 from jcm.physics.speedy.physical_constants import epssw, solc, epsilon
 from jcm.physics_interface import PhysicsTendency, PhysicsState
 from jcm.physics.speedy.physics_data import PhysicsData
+from jcm.physics.speedy.speedy_coords import SpeedyCoords
 
 @jit
 def get_shortwave_rad_fluxes(
@@ -266,7 +267,7 @@ def get_zonal_average_fields(
 
     # Solar radiation at the top
     topsr = jnp.zeros(il)
-    topsr = solar(physics_data.date.tyear,physics_data,4*solc,terrain=terrain)
+    topsr = solar(physics_data.date.tyear,physics_data.speedy_coords,4*solc)
 
     def compute_fields(sia_j, coa_j, topsr_j):
         flat2 = 1.5 * sia_j ** 2 - 0.5
@@ -408,7 +409,7 @@ def clouds(operand):
     return (state, physics_data, parameters, forcing, terrain, physics_tendencies)
 
 @jit
-def solar(tyear, physics_data: PhysicsData, csol=4.*solc, terrain: TerrainData=None):
+def solar(tyear, speedy_coords: SpeedyCoords, csol=4.*solc):
     """Calculate the daily-average insolation at the top of the atmosphere as a function of latitude.
     
     Parameters
@@ -448,10 +449,10 @@ def solar(tyear, physics_data: PhysicsData, csol=4.*solc, terrain: TerrainData=N
     csolp = csol / pigr
 
     # Calculate the solar radiation at the top of the atmosphere for each latitude
-    ch0 = jnp.clip(-tdecl * physics_data.speedy_coords.sia / physics_data.speedy_coords.coa, -1+epsilon, 1-epsilon) # Clip to prevent blowup of gradients
+    ch0 = jnp.clip(-tdecl * speedy_coords.sia / speedy_coords.coa, -1+epsilon, 1-epsilon) # Clip to prevent blowup of gradients
     h0 = jnp.arccos(ch0)
     sh0 = jnp.sin(h0)
 
-    topsr = csolp * fdis * (h0 * physics_data.speedy_coords.sia * sdecl + sh0 * physics_data.speedy_coords.coa * cdecl)
+    topsr = csolp * fdis * (h0 * speedy_coords.sia * sdecl + sh0 * speedy_coords.coa * cdecl)
 
     return topsr
