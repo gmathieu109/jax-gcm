@@ -49,7 +49,7 @@ def get_surface_fluxes(
     lfluxland : boolean, physics_data.surface_flux.lfluxland"
     """
     stl_am = forcing.stl_am
-    lfluxland = forcing.lfluxland
+    lfluxland = terrain.lfluxland
     kx, ix, il = state.temperature.shape
 
     psa = state.normalized_surface_pressure
