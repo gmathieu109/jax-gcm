@@ -15,17 +15,14 @@ class TestLargeScaleCondensationUnit(unittest.TestCase):
         from jcm.physics.speedy.physics_data import ConvectionData, HumidityData, PhysicsData
         from jcm.physics_interface import PhysicsState, PhysicsTendency
         from jcm.physics.speedy.params import Parameters
-        from jcm.physics.speedy.utils import get_speedy_coords
-        from jcm.terrain_data import TerrainData
-        from jcm.physics.speedy.speedy_coords import speedy_coords_from_coordinate_system
-
-        coords = get_speedy_coords(layers=kx, nodal_shape=(ix, il))
-        speedy_coords = speedy_coords_from_coordinate_system(coords)
-        parameters = Parameters.default()
-        terrain = TerrainData.aquaplanet(coords)
-
         from jcm.forcing import ForcingData
+        from jcm.terrain_data import TerrainData
+        from jcm.physics.speedy.speedy_coords import SpeedyCoords
         from jcm.physics.speedy.large_scale_condensation import get_large_scale_condensation_tendencies
+
+        speedy_coords = SpeedyCoords.single_column_coords(num_levels=kx)
+        parameters = Parameters.default()
+        terrain = TerrainData.single_column()
 
     def test_get_large_scale_condensation_tendencies(self):
         xy = (ix,il)
@@ -89,8 +86,8 @@ class TestLargeScaleCondensationUnit(unittest.TestCase):
 
         # Calculate gradient
         _, f_vjp = jax.vjp(get_large_scale_condensation_tendencies, state, physics_data, parameters, forcing, terrain)
-        tends = PhysicsTendency.ones(zxy, speedy_coords=speedy_coords)
-        datas = PhysicsData.ones(xy,kx)
+        tends = PhysicsTendency.ones(zxy)
+        datas = PhysicsData.ones(xy,kx,speedy_coords=speedy_coords)
         input = (tends, datas)
         df_dstates, df_ddatas, df_dparams, df_dforcing, df_dterrain = f_vjp(input)
 
@@ -113,7 +110,7 @@ class TestLargeScaleCondensationUnit(unittest.TestCase):
         convection = ConvectionData.zeros(xy, kx, iptop=itop)
         humidity = HumidityData.zeros(xy, kx, qsat=qsat[:, jnp.newaxis, jnp.newaxis])
         state = PhysicsState.zeros(zxy, specific_humidity=qa[:, jnp.newaxis, jnp.newaxis],normalized_surface_pressure=psa)
-        physics_data = PhysicsData.zeros(xy, kx, humidity=humidity, convection=convection)
+        physics_data = PhysicsData.zeros(xy, kx, humidity=humidity, convection=convection,speedy_coords=speedy_coords)
         forcing = ForcingData.ones(xy)
 
         # Set float inputs
