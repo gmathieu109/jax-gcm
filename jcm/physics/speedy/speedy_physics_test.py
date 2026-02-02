@@ -10,7 +10,7 @@ class TestSpeedyPhysicsUnit(unittest.TestCase):
         from jcm.physics.speedy.params import Parameters
         from jcm.terrain_data import TerrainData
         from jcm.date import DateData
-        from jcm.physics.speedy.utils import get_speedy_coords
+        from jcm.physics.speedy.speedy_coords import get_speedy_coords
 
         coords = get_speedy_coords(layers=kx, nodal_shape=(ix, il))
 

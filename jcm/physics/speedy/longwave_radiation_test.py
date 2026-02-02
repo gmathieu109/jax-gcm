@@ -36,9 +36,8 @@ class TestLongwave(unittest.TestCase):
         from jcm.physics_interface import PhysicsState, PhysicsTendency
         from jcm.forcing import ForcingData
         from jcm.physics.speedy.longwave_radiation import get_downward_longwave_rad_fluxes, get_upward_longwave_rad_fluxes, radset
-        from jcm.physics.speedy.utils import get_speedy_coords
         from jcm.terrain_data import TerrainData
-        from jcm.physics.speedy.speedy_coords import SpeedyCoords
+        from jcm.physics.speedy.speedy_coords import SpeedyCoords, get_speedy_coords
 
         parameters = Parameters.default()
         coords = get_speedy_coords(layers=kx, nodal_shape=(ix, il))

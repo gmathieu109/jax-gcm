@@ -18,15 +18,12 @@ class TestConvectionUnit(unittest.TestCase):
         parameters = Parameters.default()
         forcing = ForcingData.zeros((ix, il))
 
-        ## TODO: FIX reference to terrain -- should be in speedy coords 
-        # terrain = convert_to_speedy_latitudes(Geometry.from_grid_shape(nodal_shape=(ix, il), num_levels=kx))
-        from jcm.physics.speedy.utils import get_speedy_coords
         from jcm.terrain_data import TerrainData
-        from jcm.physics.speedy.speedy_coords import speedy_coords_from_coordinate_system
+        from jcm.physics.speedy.speedy_coords import SpeedyCoords, get_speedy_coords
 
         coords = get_speedy_coords(layers=kx, nodal_shape=(ix, il))
         terrain = TerrainData.aquaplanet(coords)
-        speedy_coords = speedy_coords_from_coordinate_system(coords)
+        speedy_coords = SpeedyCoords.from_coordinate_system(coords)
         fsg = speedy_coords.fsg
         grdscp = speedy_coords.grdscp
         grdsig = speedy_coords.grdsig
