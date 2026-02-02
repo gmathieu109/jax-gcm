@@ -72,7 +72,7 @@ class Predictions:
         physics_predictions = float0s_to_nans(self.physics)
 
         nodal_shape = dynamics_predictions.u_wind.shape[1:]
-        from jcm.physics.speedy.utils import get_speedy_coords
+        from jcm.physics.speedy.speedy_coords import get_speedy_coords
         coords = get_speedy_coords(layers=nodal_shape[0], nodal_shape=nodal_shape[1:])
 
         # prepare physics predictions for xarray conversion
@@ -224,7 +224,7 @@ class Model:
         # Store coords - used by dynamics and physics
         if coords is None:
             # Default to SPEEDY coords since that's the default physics
-            from jcm.physics.speedy.utils import get_speedy_coords
+            from jcm.physics.speedy.speedy_coords import get_speedy_coords
             coords = get_speedy_coords(layers=8, spectral_truncation=31,spmd_mesh=spmd_mesh)
         self.coords = coords
 

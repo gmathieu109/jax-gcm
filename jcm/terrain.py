@@ -4,13 +4,13 @@ Date: 2026-01-26
 """
 import jax.numpy as jnp
 import tree_math
-from dinosaur.coordinate_systems import CoordinateSystem
+from dinosaur.coordinate_systems import CoordinateSystem, HorizontalGridTypes
 from jcm.constants import grav
 from jcm.utils import TRUNCATION_FOR_NODAL_SHAPE, VALID_NODAL_SHAPES, VALID_TRUNCATIONS, validate_ds, spectral_truncation
 
 
 def get_terrain(orography: jnp.ndarray = None, fmask: jnp.ndarray = None, nodal_shape=None,
-                terrain_file=None, target_resolution=None, fmask_threshold=0.1):
+                terrain_file=None, target_resolution=None, fmask_threshold=0.1, grid: HorizontalGridTypes = None):
     """Get the orography data for the model grid. If fmask and/or orography are provided, use them directly
     (defaulting the other to zeros if only one is provided). If terrain_file is provided, load both from file.
     Otherwise, default both to zeros with shape nodal_shape.
@@ -42,7 +42,7 @@ def get_terrain(orography: jnp.ndarray = None, fmask: jnp.ndarray = None, nodal_
         if target_resolution is not None:
             if target_resolution not in VALID_TRUNCATIONS:
                 raise ValueError(f"Invalid target resolution: {target_resolution}. Must be one of: {VALID_TRUNCATIONS}.")
-            ds = upsample_terrain_ds(ds, target_resolution=target_resolution)
+            ds = upsample_terrain_ds(ds, target_resolution=target_resolution, grid=grid)
             orography, fmask = jnp.asarray(ds['orog']), jnp.asarray(ds['lsm'])
         elif orography.shape not in VALID_NODAL_SHAPES:
             raise ValueError(f"Invalid terrain data shape: {orography.shape}. Must be one of: {VALID_NODAL_SHAPES}.")
@@ -134,7 +134,7 @@ class TerrainData:
             TerrainData object
 
         """
-        orography, fmask = get_terrain(terrain_file=terrain_file, target_resolution=target_resolution)
+        orography, fmask = get_terrain(terrain_file=terrain_file, target_resolution=target_resolution, grid=coords.horizontal)
 
         # Validate that terrain matches coords
         if orography.shape != coords.horizontal.nodal_shape:

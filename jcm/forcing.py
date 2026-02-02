@@ -1,7 +1,7 @@
 import jax.numpy as jnp
 import tree_math
 from jax import tree_util
-from dinosaur.coordinate_systems import HorizontalGridTypes
+from dinosaur.coordinate_systems import HorizontalGridTypes, CoordinateSystem
 from jcm.utils import VALID_TRUNCATIONS, VALID_NODAL_SHAPES, validate_ds
 from jcm.data.bc.interpolate import interpolate_to_daily, upsample_forcings_ds
 
@@ -42,7 +42,7 @@ class ForcingData:
         )
     
     @classmethod
-    def from_file(cls, filename: str, target_resolution=None):
+    def from_file(cls, filename: str, target_resolution=None, coords: CoordinateSystem = None):
         """Initialize forcing data from a file.
 
         Args:
@@ -79,7 +79,7 @@ class ForcingData:
         elif target_resolution not in VALID_TRUNCATIONS:
             raise ValueError(f"Invalid target resolution: {target_resolution}. Must be one of: {VALID_TRUNCATIONS}.")
         else:
-            ds = upsample_forcings_ds(interpolate_to_daily(ds), target_resolution=target_resolution)
+            ds = upsample_forcings_ds(interpolate_to_daily(ds), target_resolution=target_resolution,grid=coords.horizontal)
 
         # annual-mean surface albedo
         alb0 = jnp.asarray(ds["alb"])

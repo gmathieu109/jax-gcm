@@ -5,6 +5,7 @@ from importlib import resources
 import argparse
 from pathlib import Path
 from jcm.utils import VALID_TRUNCATIONS, get_coords
+from dinosaur.coordinate_systems import HorizontalGridTypes
 
 def interpolate_to_daily(ds_monthly: xr.Dataset) -> xr.Dataset:
     """Interpolate monthly forcing data to daily resolution using linear interpolation.
@@ -45,7 +46,7 @@ def interpolate_to_daily(ds_monthly: xr.Dataset) -> xr.Dataset:
     daily_time_vars = daily_time_vars.sel(time=slice('1981-01-01', '1981-12-31'))
     return xr.merge([daily_time_vars, ds_monthly[non_time_vars]])
 
-def _upsample_ds(ds: xr.Dataset, target_resolution: int) -> xr.Dataset:
+def _upsample_ds(ds: xr.Dataset, target_resolution: int, grid: HorizontalGridTypes) -> xr.Dataset:
     f"""Upsample a dataset to a target spectral resolution using linear interpolation.
 
     Pads the dataset at the poles (latitude) and periodically in longitude to enable
@@ -60,7 +61,7 @@ def _upsample_ds(ds: xr.Dataset, target_resolution: int) -> xr.Dataset:
         Dataset interpolated to the target resolution grid.
 
     """
-    grid = get_coords(spectral_truncation=target_resolution).horizontal
+    # grid = get_coords(spectral_truncation=target_resolution).horizontal
 
     # Pad latitude with extra rows at poles so data can be interpolated to higher latitudes than exist in T30 grid
     south_pole = ds.isel(lat=0).mean(dim="lon", keep_attrs=True)
@@ -88,7 +89,7 @@ def _upsample_ds(ds: xr.Dataset, target_resolution: int) -> xr.Dataset:
 
     return ds_interp
 
-def upsample_forcings_ds(ds: xr.Dataset, target_resolution: int) -> xr.Dataset:
+def upsample_forcings_ds(ds: xr.Dataset, target_resolution: int, grid: HorizontalGridTypes) -> xr.Dataset:
     f"""Upsample forcing data to target resolution with physical constraints.
 
     Interpolates the forcing dataset to the target resolution and applies physical
@@ -103,14 +104,14 @@ def upsample_forcings_ds(ds: xr.Dataset, target_resolution: int) -> xr.Dataset:
         Upsampled forcing dataset with physical constraints applied.
 
     """
-    ds_interp = _upsample_ds(ds, target_resolution)
+    ds_interp = _upsample_ds(ds, target_resolution, grid)
     for v in ds_interp.data_vars:
         ds_interp[v] = ds_interp[v].clip(min=0.)
     for v in ['icec', 'soilw_am', 'alb']:
         ds_interp[v] = ds_interp[v].clip(max=1.)
     return ds_interp
 
-def upsample_terrain_ds(ds: xr.Dataset, target_resolution: int) -> xr.Dataset:
+def upsample_terrain_ds(ds: xr.Dataset, target_resolution: int, grid: HorizontalGridTypes) -> xr.Dataset:
     f"""Upsample terrain data to target resolution with physical constraints.
 
     Interpolates the terrain dataset to the target resolution and clips the land-sea
@@ -125,7 +126,7 @@ def upsample_terrain_ds(ds: xr.Dataset, target_resolution: int) -> xr.Dataset:
         Upsampled terrain dataset with land-sea mask clipped to [0, 1].
 
     """
-    ds_interp = _upsample_ds(ds, target_resolution)
+    ds_interp = _upsample_ds(ds, target_resolution, grid)
     ds_interp['lsm'] = ds_interp['lsm'].clip(0.0, 1.0)
     # not clamping orog to avoid erasing real areas below sea level, but this might allow bad extrapolated values at the extreme latitudes
     return ds_interp

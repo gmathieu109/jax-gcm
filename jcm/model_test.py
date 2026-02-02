@@ -17,7 +17,7 @@ class TestModelUnit(unittest.TestCase):
         from jcm.physics.held_suarez.held_suarez_physics import HeldSuarezPhysics
         from jcm.model import Model
         from jcm.terrain import TerrainData
-        from jcm.utils import get_coords
+        from jcm.utils import get_coords, spectral_truncation
         geometry = TerrainData.from_coords(get_coords(spectral_truncation(spectral_truncation=31, num_levels=8)))
         model = Model(
             geometry=geometry,
@@ -193,12 +193,11 @@ class TestModelUnit(unittest.TestCase):
         from importlib import resources
         data_dir = resources.files('jcm.data.bc.t30.clim')
 
-        ## TODO: Fix reference to geometry
-        geometry = Geometry.from_file(data_dir / 'terrain.nc', target_resolution=31)
+        terrain = TerrainData.from_file(data_dir / 'terrain.nc', target_resolution=31)
         forcing = ForcingData.from_file(data_dir / 'forcing.nc', target_resolution=31)
 
         create_model = lambda params=Parameters.default(): Model(
-            geometry=geometry,
+            terrain=terrain,
             physics=SpeedyPhysics(parameters=params),
         )
 
@@ -222,12 +221,13 @@ class TestModelUnit(unittest.TestCase):
         from importlib import resources
         data_dir = resources.files('jcm.data.bc.t30.clim')
 
-        ## TODO: fix reference to geometry
-        geometry = Geometry.from_file(data_dir / 'terrain.nc', target_resolution=31)
+        # need coords to create terrain
+        terrain = TerrainData.from_file(data_dir / 'terrain.nc', target_resolution=31)
         forcing = ForcingData.from_file(data_dir / 'forcing.nc', target_resolution=31)
 
+        # coords need to be passed to model init
         create_model = lambda params=Parameters.default(): Model(
-            geometry=geometry,
+            terrain=terrain,
             physics=SpeedyPhysics(parameters=params),
         )
 
