@@ -8,7 +8,7 @@ from jcm.physics_interface import PhysicsState, PhysicsTendency, Physics
 from jcm.physics.speedy.physics_data import PhysicsData
 from jcm.forcing import ForcingData
 from jcm.physics.speedy.params import Parameters
-from jcm.physics.speedy.speedy_coords import speedy_coords_from_coordinate_system
+from jcm.physics.speedy.speedy_coords import SpeedyCoords
 from jcm.terrain_data import TerrainData
 from jcm.date import DateData
 from jcm.utils import tree_index_3d
@@ -114,7 +114,7 @@ class SpeedyPhysics(Physics):
 
         """
         # Compute SPEEDY coordinate transformations from coords
-        speedy_coords = speedy_coords_from_coordinate_system(self.coords)
+        speedy_coords = SpeedyCoords.from_coordinate_system(self.coords)
 
         # Initialize physics data with speedy_coords cached
         data = PhysicsData.zeros(
@@ -143,7 +143,7 @@ class SpeedyPhysics(Physics):
         # PhysicsData.zeros creates an 'initial' physics data,
         # but we need a completely zeroed one (including fields like model_year) for accumulating averages
         # Compute speedy_coords for the empty data (it's a constant cache, not zeroed)
-        speedy_coords = speedy_coords_from_coordinate_system(coords)
+        speedy_coords = SpeedyCoords.from_coordinate_system(coords)
         empty_data = PhysicsData.zeros(coords.horizontal.nodal_shape, coords.nodal_shape[0], speedy_coords=speedy_coords)
         # Zero out everything except speedy_coords (which should remain constant)
         return tree_map(lambda x: 0*x, empty_data).copy(speedy_coords=speedy_coords)
