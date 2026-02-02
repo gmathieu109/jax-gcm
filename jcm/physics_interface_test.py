@@ -10,7 +10,7 @@ class TestPhysicsInterfaceUnit(unittest.TestCase):
         from dinosaur.scales import SI_SCALE
         from dinosaur import primitive_equations
         from dinosaur import xarray_utils
-        from jcm.physics.speedy.utils import get_speedy_coords
+        from jcm.physics.speedy.speedy_coords import get_speedy_coords
 
         PHYSICS_SPECS = primitive_equations.PrimitiveEquationsSpecs.from_si(scale = SI_SCALE)
         kx, ix, il = 8, 96, 48

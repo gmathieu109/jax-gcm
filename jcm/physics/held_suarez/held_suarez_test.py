@@ -16,7 +16,7 @@ class TestHeldSuarezUnit(unittest.TestCase):
             time_step = time_step * 60,
             physics = HeldSuarezPhysics(model.coords),
             forcing = None,
-            geometry = None,
+            terrain = None,
             diffusion = DiffusionFilter.default(),
             date = None
         )

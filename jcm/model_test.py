@@ -12,15 +12,17 @@ class TestModelUnit(unittest.TestCase):
         from jcm.physics.speedy.speedy_physics import SpeedyPhysics
         from jcm.physics.speedy.params import Parameters
 
-    ## update these tests to use the correct geometry which is now in coords or terrain data.
     def test_held_suarez_model(self):
         from jcm.physics.held_suarez.held_suarez_physics import HeldSuarezPhysics
         from jcm.model import Model
         from jcm.terrain import TerrainData
-        from jcm.utils import get_coords, spectral_truncation
-        geometry = TerrainData.from_coords(get_coords(spectral_truncation(spectral_truncation=31, num_levels=8)))
+        from jcm.physics.held_suarez.utils import get_held_suarez_coords
+
+        coords = get_held_suarez_coords()
+        terrain = TerrainData.from_coords(coords)
         model = Model(
-            geometry=geometry,
+            coords=coords,
+            terrain=terrain,
             time_step=180,
             physics=HeldSuarezPhysics(),
         )
@@ -186,19 +188,21 @@ class TestModelUnit(unittest.TestCase):
     def test_speedy_model_param_gradients_isnan_vjp(self):
         from jcm.model import Model
         from jcm.terrain import TerrainData
-        from jcm.utils import get_coords
+        from jcm.physics.speedy.speedy_coords import get_speedy_coords
         from jcm.forcing import ForcingData
         from jcm.utils import ones_like
 
         from importlib import resources
         data_dir = resources.files('jcm.data.bc.t30.clim')
 
-        terrain = TerrainData.from_file(data_dir / 'terrain.nc', target_resolution=31)
-        forcing = ForcingData.from_file(data_dir / 'forcing.nc', target_resolution=31)
+        coords = get_speedy_coords()
+        terrain = TerrainData.from_file(data_dir / 'terrain.nc', coords=coords, target_resolution=31)
+        forcing = ForcingData.from_file(data_dir / 'forcing.nc', coords=coords, target_resolution=31)
 
         create_model = lambda params=Parameters.default(): Model(
+            coords=coords,
             terrain=terrain,
-            physics=SpeedyPhysics(parameters=params),
+            physics=SpeedyPhysics(coords=coords,parameters=params),
         )
 
         fn = lambda params: create_model(params).run(save_interval=1/24., total_time=2./24., forcing=forcing)
@@ -214,21 +218,23 @@ class TestModelUnit(unittest.TestCase):
     def test_speedy_model_param_gradients_isnan_jvp(self):
         from jcm.model import Model
         from jcm.terrain import TerrainData
-        from jcm.utils import get_coords
+        from jcm.physics.speedy.speedy_coords import get_speedy_coords
         from jcm.forcing import ForcingData
         from jcm.utils import ones_like_tangent
         
         from importlib import resources
         data_dir = resources.files('jcm.data.bc.t30.clim')
 
+        coords = get_speedy_coords()
         # need coords to create terrain
-        terrain = TerrainData.from_file(data_dir / 'terrain.nc', target_resolution=31)
-        forcing = ForcingData.from_file(data_dir / 'forcing.nc', target_resolution=31)
+        terrain = TerrainData.from_file(data_dir / 'terrain.nc', coords=coords, target_resolution=31)
+        forcing = ForcingData.from_file(data_dir / 'forcing.nc', coords=coords, target_resolution=31)
 
         # coords need to be passed to model init
         create_model = lambda params=Parameters.default(): Model(
+            coords=coords,
             terrain=terrain,
-            physics=SpeedyPhysics(parameters=params),
+            physics=SpeedyPhysics(coords=coords,parameters=params),
         )
 
         model_run_wrapper = lambda params: create_model(params).run(save_interval=1/24., total_time=2./24., forcing=forcing)
