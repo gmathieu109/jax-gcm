@@ -18,11 +18,12 @@ class TestSolar(unittest.TestCase):
         from jcm.physics.speedy.shortwave_radiation import solar
         from jcm.physics.speedy.utils import get_speedy_coords
         from jcm.terrain_data import TerrainData
-        from jcm.physics.speedy.speedy_coords import speedy_coords_from_coordinate_system
+        from jcm.physics.speedy.speedy_coords import SpeedyCoords
 
         coords = get_speedy_coords(layers=kx, nodal_shape=(ix, il))
         terrain = TerrainData.aquaplanet(coords)
-        speedy_coords = speedy_coords_from_coordinate_system(coords)
+        speedy_coords = SpeedyCoords.from_coordinate_system(coords)
+
 
         from jcm.physics.speedy.test_utils import convert_to_speedy_latitudes
         terrain, speedy_coords = convert_to_speedy_latitudes(terrain, speedy_coords)
@@ -145,12 +146,12 @@ class TestShortWaveRadiation(unittest.TestCase):
         from jcm.physics.speedy.params import Parameters
         from jcm.physics.speedy.utils import get_speedy_coords
         from jcm.terrain_data import TerrainData
-        from jcm.physics.speedy.speedy_coords import speedy_coords_from_coordinate_system
+        from jcm.physics.speedy.speedy_coords import SpeedyCoords
 
         parameters = Parameters.default()
         coords = get_speedy_coords(layers=kx, nodal_shape=(ix, il))
         terrain = TerrainData.aquaplanet(coords)
-        speedy_coords = speedy_coords_from_coordinate_system(coords)
+        speedy_coords = SpeedyCoords.from_coordinate_system(coords)
         forcing = ForcingData.zeros((ix, il))
         
         from jcm.physics.speedy.test_utils import convert_to_speedy_latitudes
@@ -158,9 +159,6 @@ class TestShortWaveRadiation(unittest.TestCase):
 
     # FIXME: currently testing against itself, needs updated values from speedy.f90
     def test_shortwave_radiation(self):
-        from jcm.terrain_data import TerrainData
-        from jcm.utils import get_coords
-        from jcm.physics.speedy.test_utils import convert_to_speedy_latitudes
         qa = 0.5 * 1000. * jnp.array([0., 0.00035438, 0.00347954, 0.00472337, 0.00700214,0.01416442,0.01782708, 0.0216505])
         qsat = 1000. * jnp.array([0., 0.00037303, 0.00366268, 0.00787228, 0.01167024, 0.01490992, 0.01876534, 0.02279])
         rh = qa/qsat

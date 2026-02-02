@@ -239,7 +239,6 @@ class Model:
         )
         
         self.physics = physics or SpeedyPhysics(coords=self.coords)
-
         # Ensure physics has coords set (important for SpeedyPhysics)
         if hasattr(self.physics, 'coords') and self.physics.coords is None:
             self.physics.coords = self.coords

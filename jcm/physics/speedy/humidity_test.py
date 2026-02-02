@@ -19,12 +19,12 @@ class TestHumidityUnit(unittest.TestCase):
         from jcm.physics.speedy.params import Parameters
         from jcm.physics.speedy.utils import get_speedy_coords
         from jcm.terrain_data import TerrainData
-        from jcm.physics.speedy.speedy_coords import speedy_coords_from_coordinate_system
+        from jcm.physics.speedy.speedy_coords import SpeedyCoords
 
         parameters = Parameters.default()
         coords = get_speedy_coords(layers=kx, nodal_shape=(ix, il))
         terrain = TerrainData.aquaplanet(coords)
-        speedy_coords = speedy_coords_from_coordinate_system(coords)
+        speedy_coords = SpeedyCoords.from_coordinate_system(coords)
 
         self.temp_standard = jnp.ones((kx,ix,il))*273
         self.pressure_standard = jnp.ones((ix,il)) # normalized surface pressure

@@ -4,7 +4,41 @@ from dinosaur.coordinate_systems import CoordinateSystem
 from jcm.constants import p0, grav, cp
 from jcm.physics.speedy.physical_constants import SIGMA_LAYER_BOUNDARIES
 
+def compute_speedy_vertical_coords(kx: int):
+        """Compute SPEEDY vertical coordinate transformations.
 
+        Args:
+            kx: Number of vertical levels
+
+        Returns:
+            Tuple of (hsg, fsg, dhs, sigl, grdsig, grdscp, wvi)
+
+        Raises:
+            ValueError: If kx is not a supported number of vertical levels
+        """
+        if kx not in SIGMA_LAYER_BOUNDARIES:
+            raise ValueError(f"Invalid number of vertical levels: {kx}. Must be one of: {tuple(SIGMA_LAYER_BOUNDARIES.keys())}")
+
+        # Layer boundaries and midpoints
+        hsg = SIGMA_LAYER_BOUNDARIES[kx]
+        fsg = (hsg[1:] + hsg[:-1]) / 2.
+        dhs = jnp.diff(hsg)
+        sigl = jnp.log(fsg)
+
+        # Conversion factors for fluxes -> tendencies
+        grdsig = grav / (dhs * p0)
+        grdscp = grdsig / cp
+
+        # Weights for vertical interpolation at half-levels(1,kx) and surface
+        # Note that for phys.par. half-lev(k) is between full-lev k and k+1
+        # Fhalf(k) = Ffull(k) + WVI(K,2) * (Ffull(k+1) - Ffull(k))
+        # Fsurf = Ffull(kx) + WVI(kx,2) * (Ffull(kx) - Ffull(kx-1))
+        wvi = jnp.zeros((kx, 2))
+        wvi = wvi.at[:-1, 0].set(1. / jnp.diff(sigl))
+        wvi = wvi.at[:-1, 1].set((jnp.log(hsg[1:-1]) - sigl[:-1]) * wvi[:-1, 0])
+        wvi = wvi.at[-1, 1].set((jnp.log(0.99) - sigl[-1]) * wvi[-2, 0])
+
+        return hsg, fsg, dhs, sigl, grdsig, grdscp, wvi
 @tree_math.struct
 class SpeedyCoords:
     """SPEEDY-specific coordinate system data.
@@ -70,73 +104,68 @@ class SpeedyCoords:
             coa=coa if coa is not None else self.coa
         )
 
-def compute_vertical_coords(kx: int):
-    """Compute SPEEDY vertical coordinate transformations.
+    @classmethod
+    def single_column_geometry(cls, radang=0., orog=0., fmask=0., phis0=None, num_levels=8):
+            """Initialize a speedy_coords instance for a single column model.
 
-    Args:
-        kx: Number of vertical levels
+            Args:
+                radang (optional): Latitude of the single column in radians (default 0).
+                orog (optional): Orography height in meters (default 0).
+                fmask (optional): Fractional land-sea mask (default 0, all ocean).
+                phis0 (optional): Spectrally truncated surface geopotential (default grav * orog).
+                num_levels (optional): Number of vertical levels (default 8).
 
-    Returns:
-        Tuple of (hsg, fsg, dhs, sigl, grdsig, grdscp, wvi)
+            Returns:
+                Speedy coords object
 
-    Raises:
-        ValueError: If kx is not a supported number of vertical levels
-    """
-    if kx not in SIGMA_LAYER_BOUNDARIES:
-        raise ValueError(f"Invalid number of vertical levels: {kx}. Must be one of: {tuple(SIGMA_LAYER_BOUNDARIES.keys())}")
+            """
+            sia, coa = jnp.sin(radang), jnp.cos(radang)
 
-    # Layer boundaries and midpoints
-    hsg = SIGMA_LAYER_BOUNDARIES[kx]
-    fsg = (hsg[1:] + hsg[:-1]) / 2.
-    dhs = jnp.diff(hsg)
-    sigl = jnp.log(fsg)
+            # Letting user specify phis0 allows for the case of pulling one column from a full geometry,
+            # where phis0 =/= grav * orog due to spectral truncation.
+            if phis0 is None:
+                phis0 = grav * orog
 
-    # Conversion factors for fluxes -> tendencies
-    grdsig = grav / (dhs * p0)
-    grdscp = grdsig / cp
+            # Vertical functions of sigma
+            hsg, fsg, dhs, sigl, grdsig, grdscp, wvi = compute_speedy_vertical_coords(num_levels)
 
-    # Weights for vertical interpolation at half-levels(1,kx) and surface
-    # Note that for phys.par. half-lev(k) is between full-lev k and k+1
-    # Fhalf(k) = Ffull(k) + WVI(K,2) * (Ffull(k+1) - Ffull(k))
-    # Fsurf = Ffull(kx) + WVI(kx,2) * (Ffull(kx) - Ffull(kx-1))
-    wvi = jnp.zeros((kx, 2))
-    wvi = wvi.at[:-1, 0].set(1. / jnp.diff(sigl))
-    wvi = wvi.at[:-1, 1].set((jnp.log(hsg[1:-1]) - sigl[:-1]) * wvi[:-1, 0])
-    wvi = wvi.at[-1, 1].set((jnp.log(0.99) - sigl[-1]) * wvi[-2, 0])
+            return cls(nodal_shape=(num_levels, 1, 1),
+                    orog=jnp.array([[orog]]), phis0=jnp.array([[phis0]]), fmask=jnp.array([[fmask]]),
+                    radang=jnp.array([[radang]]), sia=jnp.array([[sia]]), coa=jnp.array([[coa]]),
+                    hsg=hsg, fsg=fsg, dhs=dhs, sigl=sigl,
+                    grdsig=grdsig, grdscp=grdscp, wvi=wvi)
 
-    return hsg, fsg, dhs, sigl, grdsig, grdscp, wvi
+    @classmethod
+    def from_coordinate_system(cls, coords: CoordinateSystem):
+        """Create SpeedyCoords from a dinosaur CoordinateSystem.
 
+        This function extracts and transforms coordinate data from a CoordinateSystem
+        into the specific form needed by SPEEDY physics parameterizations.
 
-def speedy_coords_from_coordinate_system(coords: CoordinateSystem) -> SpeedyCoords:
-    """Create SpeedyCoords from a dinosaur CoordinateSystem.
+        Args:
+            coords: dinosaur.coordinate_systems.CoordinateSystem object
 
-    This function extracts and transforms coordinate data from a CoordinateSystem
-    into the specific form needed by SPEEDY physics parameterizations.
+        Returns:
+            SpeedyCoords struct containing all coordinate transformations
+        """
+        # Compute vertical coordinates
+        kx = coords.nodal_shape[0]
+        hsg, fsg, dhs, sigl, grdsig, grdscp, wvi = compute_speedy_vertical_coords(kx)
 
-    Args:
-        coords: dinosaur.coordinate_systems.CoordinateSystem object
+        # Compute horizontal coordinates
+        radang = coords.horizontal.latitudes
+        sia = jnp.sin(radang)
+        coa = jnp.cos(radang)
 
-    Returns:
-        SpeedyCoords struct containing all coordinate transformations
-    """
-    # Compute vertical coordinates
-    kx = coords.nodal_shape[0]
-    hsg, fsg, dhs, sigl, grdsig, grdscp, wvi = compute_vertical_coords(kx)
-
-    # Compute horizontal coordinates
-    radang = coords.horizontal.latitudes
-    sia = jnp.sin(radang)
-    coa = jnp.cos(radang)
-
-    return SpeedyCoords(
-        hsg=hsg,
-        fsg=fsg,
-        dhs=dhs,
-        sigl=sigl,
-        grdsig=grdsig,
-        grdscp=grdscp,
-        wvi=wvi,
-        radang=radang,
-        sia=sia,
-        coa=coa
-    )
+        return cls(
+            hsg=hsg,
+            fsg=fsg,
+            dhs=dhs,
+            sigl=sigl,
+            grdsig=grdsig,
+            grdscp=grdscp,
+            wvi=wvi,
+            radang=radang,
+            sia=sia,
+            coa=coa
+        )

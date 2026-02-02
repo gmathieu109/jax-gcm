@@ -17,12 +17,12 @@ class TestSurfaceFluxesUnit(unittest.TestCase):
         from jcm.physics.speedy.params import Parameters
         from jcm.physics.speedy.utils import get_speedy_coords
         from jcm.terrain_data import TerrainData
-        from jcm.physics.speedy.speedy_coords import speedy_coords_from_coordinate_system
+        from jcm.physics.speedy.speedy_coords import SpeedyCoords
         from jcm.physics.speedy.test_utils import convert_to_speedy_latitudes
 
         parameters = Parameters.default()
         coords = get_speedy_coords(layers=kx, nodal_shape=(ix, il))
-        speedy_coords = speedy_coords_from_coordinate_system(coords)
+        speedy_coords = SpeedyCoords.from_coordinate_system(coords)
 
         from jcm.constants import grav
         parameters = Parameters.default()
@@ -469,13 +469,13 @@ class TestAquaplanetSurfaceFluxes(unittest.TestCase):
         from jcm.constants import grav
         from jcm.physics.speedy.utils import get_speedy_coords
         from jcm.terrain_data import TerrainData
-        from jcm.physics.speedy.speedy_coords import speedy_coords_from_coordinate_system
+        from jcm.physics.speedy.speedy_coords import SpeedyCoords
         from jcm.physics.speedy.test_utils import convert_to_speedy_latitudes
 
         parameters = Parameters.default()
         coords = get_speedy_coords(layers=kx, nodal_shape=(ix, il))
         terrain = TerrainData.aquaplanet(coords) 
-        speedy_coords = speedy_coords_from_coordinate_system(coords)
+        speedy_coords = SpeedyCoords.from_coordinate_system(coords)
         terrain, speedy_coords = convert_to_speedy_latitudes(terrain, speedy_coords)
         parameters = Parameters.default()
 
