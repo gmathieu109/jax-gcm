@@ -1,6 +1,6 @@
 import jax.numpy as jnp
 from jax import jit
-from jcm.terrain_data import TerrainData
+from jcm.terrain import TerrainData
 from jcm.forcing import ForcingData
 from jcm.physics.speedy.params import Parameters
 from jcm.physics.speedy.physical_constants import cp, alhc

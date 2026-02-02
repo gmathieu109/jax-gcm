@@ -16,7 +16,7 @@ class TestSolar(unittest.TestCase):
 
         global solar, terrain, speedy_coords
         from jcm.physics.speedy.shortwave_radiation import solar
-        from jcm.terrain_data import TerrainData
+        from jcm.terrain import TerrainData
         from jcm.physics.speedy.speedy_coords import SpeedyCoords, get_speedy_coords
 
         coords = get_speedy_coords(layers=kx, nodal_shape=(ix, il))
@@ -144,7 +144,7 @@ class TestShortWaveRadiation(unittest.TestCase):
         from jcm.physics.speedy.shortwave_radiation import get_clouds, get_zonal_average_fields, get_shortwave_rad_fluxes, solar
         from jcm.physics.speedy.physical_constants import epssw, solc
         from jcm.physics.speedy.params import Parameters
-        from jcm.terrain_data import TerrainData
+        from jcm.terrain import TerrainData
         from jcm.physics.speedy.speedy_coords import SpeedyCoords, get_speedy_coords
 
         parameters = Parameters.default()

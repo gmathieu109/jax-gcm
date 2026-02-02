@@ -8,7 +8,7 @@ The corrections are applied in grid space as a physics parameterization.
 import jax.numpy as jnp
 from jcm.physics_interface import PhysicsState, PhysicsTendency
 from jcm.forcing import ForcingData
-from jcm.terrain_data import TerrainData
+from jcm.terrain import TerrainData
 from jcm.physics.speedy.params import Parameters
 from jcm.physics.speedy.physical_constants import rgas, grav, gamma, hscale, hshum, refrh1
 from jcm.physics.speedy.physics_data import PhysicsData

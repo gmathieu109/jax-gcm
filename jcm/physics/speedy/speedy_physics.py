@@ -9,7 +9,7 @@ from jcm.physics.speedy.physics_data import PhysicsData
 from jcm.forcing import ForcingData
 from jcm.physics.speedy.params import Parameters
 from jcm.physics.speedy.speedy_coords import SpeedyCoords
-from jcm.terrain_data import TerrainData
+from jcm.terrain import TerrainData
 from jcm.date import DateData
 from jcm.utils import tree_index_3d
 

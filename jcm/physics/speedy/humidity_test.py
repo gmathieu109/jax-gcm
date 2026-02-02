@@ -17,7 +17,7 @@ class TestHumidityUnit(unittest.TestCase):
         from jcm.physics.speedy.humidity import get_qsat, spec_hum_to_rel_hum, rel_hum_to_spec_hum
         from jcm.forcing import ForcingData
         from jcm.physics.speedy.params import Parameters
-        from jcm.terrain_data import TerrainData
+        from jcm.terrain import TerrainData
         from jcm.physics.speedy.speedy_coords import SpeedyCoords, get_speedy_coords
 
         parameters = Parameters.default()

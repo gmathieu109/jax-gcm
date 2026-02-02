@@ -1,5 +1,5 @@
 import jax.numpy as jnp
-from jcm.terrain_data import TerrainData
+from jcm.terrain import TerrainData
 from jcm.physics.speedy.speedy_coords import SpeedyCoords
 from typing import Tuple
 

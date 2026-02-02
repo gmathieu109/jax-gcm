@@ -16,7 +16,7 @@ class TestModelUnit(unittest.TestCase):
     def test_held_suarez_model(self):
         from jcm.physics.held_suarez.held_suarez_physics import HeldSuarezPhysics
         from jcm.model import Model
-        from jcm.terrain_data import TerrainData
+        from jcm.terrain import TerrainData
         from jcm.utils import get_coords
         geometry = TerrainData.from_coords(get_coords(spectral_truncation(spectral_truncation=31, num_levels=8)))
         model = Model(
@@ -185,7 +185,7 @@ class TestModelUnit(unittest.TestCase):
     @pytest.mark.slow
     def test_speedy_model_param_gradients_isnan_vjp(self):
         from jcm.model import Model
-        from jcm.terrain_data import TerrainData
+        from jcm.terrain import TerrainData
         from jcm.utils import get_coords
         from jcm.forcing import ForcingData
         from jcm.utils import ones_like
@@ -214,7 +214,7 @@ class TestModelUnit(unittest.TestCase):
     @pytest.mark.slow
     def test_speedy_model_param_gradients_isnan_jvp(self):
         from jcm.model import Model
-        from jcm.terrain_data import TerrainData
+        from jcm.terrain import TerrainData
         from jcm.utils import get_coords
         from jcm.forcing import ForcingData
         from jcm.utils import ones_like_tangent

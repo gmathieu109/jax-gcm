@@ -18,7 +18,7 @@ class Test_VerticalDiffusion_Unit(unittest.TestCase):
         from jcm.forcing import ForcingData
         from jcm.physics_interface import PhysicsState, PhysicsTendency
         from jcm.physics.speedy.vertical_diffusion import get_vertical_diffusion_tend
-        from jcm.terrain_data import TerrainData
+        from jcm.terrain import TerrainData
         from jcm.physics.speedy.speedy_coords import SpeedyCoords
 
         speedy_coords = SpeedyCoords.single_column_coords(num_levels=kx)

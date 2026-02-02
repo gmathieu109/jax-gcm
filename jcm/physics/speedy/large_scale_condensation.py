@@ -3,7 +3,7 @@ Parametrization of large-scale condensation.
 """
 from jax import jit
 import jax.numpy as jnp
-from jcm.terrain_data import TerrainData
+from jcm.terrain import TerrainData
 from jcm.forcing import ForcingData
 from jcm.physics.speedy.params import Parameters
 from jcm.physics_interface import PhysicsTendency, PhysicsState

@@ -13,7 +13,7 @@ from dinosaur.primitive_equations import get_geopotential, compute_diagnostic_st
 from dinosaur.filtering import horizontal_diffusion_filter
 from jax import tree_util
 from jcm.forcing import ForcingData
-from jcm.terrain_data import TerrainData
+from jcm.terrain import TerrainData
 from jcm.date import DateData
 from typing import Tuple, Any
 from jcm.diffusion import DiffusionFilter

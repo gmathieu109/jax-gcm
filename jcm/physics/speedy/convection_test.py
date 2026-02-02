@@ -13,12 +13,12 @@ class TestConvectionUnit(unittest.TestCase):
         global ConvectionData, HumidityData, ForcingData, PhysicsData, PhysicsState, parameters, forcing, terrain, speedy_coords, diagnose_convection, get_convection_tendencies, PhysicsTendency, get_qsat, rgas, cp, fsg, grdscp, grdsig
         from jcm.forcing import ForcingData
         from jcm.physics.speedy.params import Parameters
-        from jcm.terrain_data import TerrainData
+        from jcm.terrain import TerrainData
         # from jcm.physics.speedy.test_utils import convert_to_speedy_latitudes
         parameters = Parameters.default()
         forcing = ForcingData.zeros((ix, il))
 
-        from jcm.terrain_data import TerrainData
+        from jcm.terrain import TerrainData
         from jcm.physics.speedy.speedy_coords import SpeedyCoords, get_speedy_coords
 
         coords = get_speedy_coords(layers=kx, nodal_shape=(ix, il))

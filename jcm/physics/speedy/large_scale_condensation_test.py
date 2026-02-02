@@ -16,7 +16,7 @@ class TestLargeScaleCondensationUnit(unittest.TestCase):
         from jcm.physics_interface import PhysicsState, PhysicsTendency
         from jcm.physics.speedy.params import Parameters
         from jcm.forcing import ForcingData
-        from jcm.terrain_data import TerrainData
+        from jcm.terrain import TerrainData
         from jcm.physics.speedy.speedy_coords import SpeedyCoords
         from jcm.physics.speedy.large_scale_condensation import get_large_scale_condensation_tendencies
 
