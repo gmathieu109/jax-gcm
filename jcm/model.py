@@ -195,7 +195,7 @@ def averaged_trajectory_from_step(
 class Model:
     """Top level class for a JAX-GCM configuration using the Speedy physics on an aquaplanet."""
 
-    def __init__(self, time_step=30.0, terrain: TerrainData=None, coords: CoordinateSystem=None,
+    def __init__(self, coords: CoordinateSystem, time_step=30.0, terrain: TerrainData=None,
                  physics: Physics=None, diffusion: DiffusionFilter=None, spmd_mesh: tuple[int, ...]=None,
                  start_date: jdt.Datetime=jdt.to_datetime('2000-01-01')) -> None:
         """Initialize the model with the given time step, save interval, and total time.
@@ -222,10 +222,6 @@ class Model:
         self.dt = self.physics_specs.nondimensionalize(self.dt_si)
 
         # Store coords - used by dynamics and physics
-        if coords is None:
-            # Default to SPEEDY coords since that's the default physics
-            from jcm.physics.speedy.speedy_coords import get_speedy_coords
-            coords = get_speedy_coords(layers=8, spectral_truncation=31,spmd_mesh=spmd_mesh)
         self.coords = coords
 
         # Store terrain (boundary conditions)
