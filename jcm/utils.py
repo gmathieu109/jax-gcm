@@ -42,8 +42,8 @@ def get_coords(sigma_boundaries, spectral_truncation=31, nodal_shape=None, spmd_
         spmd_mesh: Optional SPMD mesh for parallelization
 
     Returns:
-
         CoordinateSystem object
+        
     """
     from dinosaur.spherical_harmonic import FastSphericalHarmonics, RealSphericalHarmonics
 
