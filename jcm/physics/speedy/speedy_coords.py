@@ -20,6 +20,7 @@ def get_speedy_coords(layers=8, spectral_truncation=31, nodal_shape=(96,48), spm
     Returns:
         CoordinateSystem object with SPEEDY sigma levels
     """
+
     if layers not in SIGMA_LAYER_BOUNDARIES:
         raise ValueError(f"SPEEDY physics supports {list(SIGMA_LAYER_BOUNDARIES.keys())} layers, got {layers}")
 
@@ -42,6 +43,7 @@ def compute_speedy_vertical_coords(kx: int):
         Raises:
             ValueError: If kx is not a supported number of vertical levels
         """
+
         if kx not in SIGMA_LAYER_BOUNDARIES:
             raise ValueError(f"Invalid number of vertical levels: {kx}. Must be one of: {tuple(SIGMA_LAYER_BOUNDARIES.keys())}")
 
@@ -113,9 +115,7 @@ class SpeedyCoords:
             radang=None,
             sia=None,
             coa=None):
-        """
-        Copy an instance of SpeedyCoords
-        """
+        """Copy an instance of SpeedyCoords"""
 
         return SpeedyCoords(
             hsg=hsg if hsg is not None else self.hsg,
@@ -142,6 +142,7 @@ class SpeedyCoords:
                 Speedy coords object
 
             """
+
             sia, coa = jnp.sin(radang), jnp.cos(radang)
 
             # Vertical functions of sigma
@@ -164,6 +165,7 @@ class SpeedyCoords:
         Returns:
             SpeedyCoords struct containing all coordinate transformations
         """
+
         # Compute vertical coordinates
         kx = coords.nodal_shape[0]
         hsg, fsg, dhs, sigl, grdsig, grdscp, wvi = compute_speedy_vertical_coords(kx)

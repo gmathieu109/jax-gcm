@@ -27,6 +27,7 @@ def get_held_suarez_coords(layers=8, spectral_truncation=31, nodal_shape=None, s
     Returns:
         CoordinateSystem object
     """
+    
     if sigma_boundaries is None:
         if layers != 8:
             raise ValueError(f"Default sigma boundaries only defined for 8 layers. Provide explicit sigma_boundaries for {layers} layers.")

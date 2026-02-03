@@ -28,7 +28,7 @@ VALID_NODAL_SHAPES = tuple(TRUNCATION_FOR_NODAL_SHAPE.keys())
 VALID_TRUNCATIONS = tuple(TRUNCATION_FOR_NODAL_SHAPE.values())
 
 def get_coords(sigma_boundaries, spectral_truncation=31, nodal_shape=None, spmd_mesh=None) -> CoordinateSystem:
-    f"""
+    """
     Returns a CoordinateSystem object for the given sigma boundaries and horizontal resolution.
 
     This is a physics-agnostic function. Use physics-specific helpers for default sigma boundaries:
@@ -44,6 +44,7 @@ def get_coords(sigma_boundaries, spectral_truncation=31, nodal_shape=None, spmd_
     Returns:
         CoordinateSystem object
     """
+
     from dinosaur.spherical_harmonic import FastSphericalHarmonics, RealSphericalHarmonics
 
     if nodal_shape is not None:
@@ -74,6 +75,7 @@ def spectral_truncation(grid: HorizontalGridTypes, grid_field, truncation_number
     """grid_field: field in grid space
     trunc: truncation level, # of wavenumbers to keep
     """
+
     spectral_field = grid.to_modal(grid_field)
     nx,mx = spectral_field.shape
     n_indices, m_indices = jnp.meshgrid(jnp.arange(nx), jnp.arange(mx), indexing='ij')
@@ -96,6 +98,7 @@ def validate_ds(ds, expected_structure):
         expected_structure (dict): A dictionary where keys are variable names and values are tuples of expected dimension names.
 
     """
+
     missing_vars = set(expected_structure) - set(ds.data_vars)
     if missing_vars:
         raise ValueError(f"Missing variables: {missing_vars}")

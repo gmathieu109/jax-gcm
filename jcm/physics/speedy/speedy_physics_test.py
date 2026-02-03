@@ -11,7 +11,7 @@ class TestSpeedyPhysicsUnit(unittest.TestCase):
         from jcm.physics.speedy.params import Parameters
         from jcm.date import DateData
         from jcm.terrain import TerrainData
-        from jcm.physics.speedy.speedy_coords import SpeedyCoords, get_speedy_coords
+        from jcm.physics.speedy.speedy_coords import get_speedy_coords
         coords = get_speedy_coords(layers=kx, nodal_shape=(ix, il))
         terrain = TerrainData.aquaplanet(coords)
 

@@ -6,7 +6,7 @@ import jax.numpy as jnp
 import tree_math
 from dinosaur.coordinate_systems import CoordinateSystem, HorizontalGridTypes
 from jcm.constants import grav
-from jcm.utils import TRUNCATION_FOR_NODAL_SHAPE, VALID_NODAL_SHAPES, VALID_TRUNCATIONS, validate_ds, spectral_truncation
+from jcm.utils import VALID_NODAL_SHAPES, VALID_TRUNCATIONS, validate_ds, spectral_truncation
 
 
 def get_terrain(orography: jnp.ndarray = None, fmask: jnp.ndarray = None, nodal_shape=None,
@@ -28,6 +28,7 @@ def get_terrain(orography: jnp.ndarray = None, fmask: jnp.ndarray = None, nodal_
         Land-sea mask (ix, il)
 
     """
+
     if fmask is None and orography is None:
         if terrain_file is None:
             if nodal_shape is None:
@@ -71,6 +72,7 @@ class TerrainData:
         fmask: Fractional land-sea mask, shape (ix, il)
         lfluxland: Whether to compute land surface fluxes (bool)
     """
+
     orog: jnp.ndarray
     phis0: jnp.ndarray
     fmask: jnp.ndarray
@@ -106,6 +108,7 @@ class TerrainData:
             TerrainData object
 
         """
+
         # Orography and surface geopotential
         orog, fmask = get_terrain(
             fmask=fmask,
@@ -134,6 +137,7 @@ class TerrainData:
             TerrainData object
 
         """
+
         orography, fmask = get_terrain(terrain_file=terrain_file, target_resolution=target_resolution, grid=coords.horizontal)
 
         # Validate that terrain matches coords
@@ -158,6 +162,7 @@ class TerrainData:
             TerrainData object with all zeros for orography and fmask.
 
         """
+
         nodal_shape = coords.horizontal.nodal_shape
         return cls(
             orog=jnp.zeros(nodal_shape),
@@ -180,6 +185,7 @@ class TerrainData:
             TerrainData object
 
         """
+        
         # Letting user specify phis0 allows for the case of pulling one column from full terrain,
         # where phis0 != grav * orog due to spectral truncation.
         if phis0 is None:

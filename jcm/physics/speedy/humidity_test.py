@@ -31,7 +31,6 @@ class TestHumidityUnit(unittest.TestCase):
         self.qg_standard = jnp.ones((kx,ix,il))*2
 
     def test_spec_hum_to_rel_hum_isnan_ones(self):
-        from jcm.constants import grav
         xy = (ix, il)
         zxy = (kx, ix, il)
         
@@ -42,8 +41,6 @@ class TestHumidityUnit(unittest.TestCase):
         qa = 5. * jnp.ones(((kx, ix, il))) #temperature
         rh = 0.8 * jnp.ones(((kx, ix, il))) #relative humidity
         phi = 5000. * jnp.ones(((kx, ix, il))) #geopotential
-        phi0 = 500. * jnp.ones((ix, il)) #surface geopotential
-        fmask = 0.5 * jnp.ones((ix, il)) #land fraction mask
         sea_surface_temperature = 290. * jnp.ones((ix, il)) #ssts
         rsds = 400. * jnp.ones((ix, il)) #surface downward shortwave
         rlds = 400. * jnp.ones((ix, il)) #surface downward longwave

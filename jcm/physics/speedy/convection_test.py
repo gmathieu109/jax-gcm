@@ -14,11 +14,6 @@ class TestConvectionUnit(unittest.TestCase):
         from jcm.forcing import ForcingData
         from jcm.physics.speedy.params import Parameters
         from jcm.terrain import TerrainData
-        # from jcm.physics.speedy.test_utils import convert_to_speedy_latitudes
-        parameters = Parameters.default()
-        forcing = ForcingData.zeros((ix, il))
-
-        from jcm.terrain import TerrainData
         from jcm.physics.speedy.speedy_coords import SpeedyCoords, get_speedy_coords
 
         coords = get_speedy_coords(layers=kx, nodal_shape=(ix, il))
@@ -27,6 +22,8 @@ class TestConvectionUnit(unittest.TestCase):
         fsg = speedy_coords.fsg
         grdscp = speedy_coords.grdscp
         grdsig = speedy_coords.grdsig
+        parameters = Parameters.default()
+        forcing = ForcingData.zeros((ix, il))
 
         from jcm.physics.speedy.physics_data import ConvectionData, HumidityData, PhysicsData
         from jcm.physics_interface import PhysicsState, PhysicsTendency

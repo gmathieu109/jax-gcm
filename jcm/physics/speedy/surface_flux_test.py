@@ -465,7 +465,6 @@ class TestAquaplanetSurfaceFluxes(unittest.TestCase):
         from jcm.physics.speedy.params import Parameters
         from jcm.terrain import TerrainData
         from jcm.constants import grav
-        from jcm.terrain import TerrainData
         from jcm.physics.speedy.speedy_coords import SpeedyCoords, get_speedy_coords
         from jcm.physics.speedy.test_utils import convert_to_speedy_latitudes
 
@@ -487,10 +486,6 @@ class TestAquaplanetSurfaceFluxes(unittest.TestCase):
         """
         xy = (ix, il)
         zxy = (kx, ix, il)
-
-        # Pure ocean setup - no land
-        fmask = jnp.zeros((ix, il))  # All ocean
-        phi0 = jnp.zeros((ix, il))   # No orography
 
         # Atmospheric state
         psa = jnp.ones((ix, il))
@@ -544,9 +539,6 @@ class TestAquaplanetSurfaceFluxes(unittest.TestCase):
         xy = (ix, il)
         zxy = (kx, ix, il)
 
-        fmask = jnp.zeros((ix, il))
-        phi0 = jnp.zeros((ix, il))
-
         psa = jnp.ones((ix, il))
         ua = 5.0 * jnp.ones(zxy)
         va = 2.0 * jnp.ones(zxy)
@@ -585,9 +577,6 @@ class TestAquaplanetSurfaceFluxes(unittest.TestCase):
         """Test that gradients are valid for aquaplanet configuration."""
         xy = (ix, il)
         zxy = (kx, ix, il)
-
-        fmask = jnp.zeros((ix, il))
-        phi0 = jnp.zeros((ix, il))
         psa = jnp.ones((ix, il))
         ua = 5.0 * jnp.ones(zxy)
         va = 2.0 * jnp.ones(zxy)

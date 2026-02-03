@@ -4,7 +4,7 @@ import pandas as pd
 from importlib import resources
 import argparse
 from pathlib import Path
-from jcm.utils import VALID_TRUNCATIONS, get_coords
+from jcm.utils import VALID_TRUNCATIONS
 from dinosaur.coordinate_systems import HorizontalGridTypes
 
 def interpolate_to_daily(ds_monthly: xr.Dataset) -> xr.Dataset:
@@ -61,7 +61,6 @@ def _upsample_ds(ds: xr.Dataset, target_resolution: int, grid: HorizontalGridTyp
         Dataset interpolated to the target resolution grid.
 
     """
-    # grid = get_coords(spectral_truncation=target_resolution).horizontal
 
     # Pad latitude with extra rows at poles so data can be interpolated to higher latitudes than exist in T30 grid
     south_pole = ds.isel(lat=0).mean(dim="lon", keep_attrs=True)
