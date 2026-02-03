@@ -42,12 +42,11 @@ class ForcingData:
         )
     
     @classmethod
-    def from_file(cls, filename: str, target_resolution=None, coords: CoordinateSystem = None):
+    def from_file(cls, filename: str, coords: CoordinateSystem = None):
         """Initialize forcing data from a file.
 
         Args:
             filename: Path to the forcing data file
-            target_resolution (optional): Target spectral truncation for interpolation, default None (no interpolation).
 
         Returns:
             ForcingData: Time-varying forcing data
@@ -68,6 +67,7 @@ class ForcingData:
         }
 
         validate_ds(ds, expected_structure)
+        target_resolution = coords.horizontal.total_wavenumbers - 2 if coords is not None else None
 
         if target_resolution is None:
             ix, il, n_times = ds['stl'].shape
@@ -79,7 +79,7 @@ class ForcingData:
         elif target_resolution not in VALID_TRUNCATIONS:
             raise ValueError(f"Invalid target resolution: {target_resolution}. Must be one of: {VALID_TRUNCATIONS}.")
         else:
-            ds = upsample_forcings_ds(interpolate_to_daily(ds), target_resolution=target_resolution,grid=coords.horizontal)
+            ds = upsample_forcings_ds(interpolate_to_daily(ds), grid=coords.horizontal)
 
         # annual-mean surface albedo
         alb0 = jnp.asarray(ds["alb"])

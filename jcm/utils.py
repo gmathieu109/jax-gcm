@@ -71,7 +71,7 @@ def get_coords(sigma_boundaries, spectral_truncation=31, nodal_shape=None, spmd_
     )
 
 # Function to take a field in grid space and truncate it to a given wavenumber
-def spectral_truncation(grid: HorizontalGridTypes, grid_field, truncation_number=None):
+def spectral_truncation(grid: HorizontalGridTypes, grid_field):
     """grid_field: field in grid space
     trunc: truncation level, # of wavenumbers to keep
     """
@@ -80,8 +80,7 @@ def spectral_truncation(grid: HorizontalGridTypes, grid_field, truncation_number
     n_indices, m_indices = jnp.meshgrid(jnp.arange(nx), jnp.arange(mx), indexing='ij')
     total_wavenumber = m_indices + n_indices
 
-    # truncate to grid truncation if no truncation number is given
-    truncation_number = truncation_number or (grid.total_wavenumbers - 2)
+    truncation_number = (grid.total_wavenumbers - 2)
 
     spectral_field = jnp.where(total_wavenumber > truncation_number, 0.0, spectral_field)
 

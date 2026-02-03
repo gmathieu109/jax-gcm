@@ -204,8 +204,8 @@ class TestModelUnit(unittest.TestCase):
         data_dir = resources.files('jcm.data.bc.t30.clim')
 
         coords = get_speedy_coords()
-        terrain = TerrainData.from_file(data_dir / 'terrain.nc', coords=coords, target_resolution=31)
-        forcing = ForcingData.from_file(data_dir / 'forcing.nc', coords=coords, target_resolution=31)
+        terrain = TerrainData.from_file(data_dir / 'terrain.nc', coords=coords)
+        forcing = ForcingData.from_file(data_dir / 'forcing.nc', coords=coords)
 
         create_model = lambda params=Parameters.default(): Model(
             coords=coords,
@@ -235,8 +235,8 @@ class TestModelUnit(unittest.TestCase):
 
         coords = get_speedy_coords()
         # need coords to create terrain
-        terrain = TerrainData.from_file(data_dir / 'terrain.nc', coords=coords, target_resolution=31)
-        forcing = ForcingData.from_file(data_dir / 'forcing.nc', coords=coords, target_resolution=31)
+        terrain = TerrainData.from_file(data_dir / 'terrain.nc', coords=coords)
+        forcing = ForcingData.from_file(data_dir / 'forcing.nc', coords=coords)
 
         # coords need to be passed to model init
         create_model = lambda params=Parameters.default(): Model(

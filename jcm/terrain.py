@@ -10,7 +10,7 @@ from jcm.utils import VALID_NODAL_SHAPES, VALID_TRUNCATIONS, validate_ds, spectr
 
 
 def get_terrain(orography: jnp.ndarray = None, fmask: jnp.ndarray = None, nodal_shape=None,
-                terrain_file=None, target_resolution=None, fmask_threshold=0.1, grid: HorizontalGridTypes = None):
+                terrain_file=None, fmask_threshold=0.1, grid: HorizontalGridTypes = None):
     """Get the orography data for the model grid. If fmask and/or orography are provided, use them directly
     (defaulting the other to zeros if only one is provided). If terrain_file is provided, load both from file.
     Otherwise, default both to zeros with shape nodal_shape.
@@ -29,6 +29,8 @@ def get_terrain(orography: jnp.ndarray = None, fmask: jnp.ndarray = None, nodal_
         Land-sea mask (ix, il)
 
     """
+    target_resolution = grid.total_wavenumbers - 2 if grid is not None else None
+
     if fmask is None and orography is None:
         if terrain_file is None:
             if nodal_shape is None:
@@ -43,7 +45,7 @@ def get_terrain(orography: jnp.ndarray = None, fmask: jnp.ndarray = None, nodal_
         if target_resolution is not None:
             if target_resolution not in VALID_TRUNCATIONS:
                 raise ValueError(f"Invalid target resolution: {target_resolution}. Must be one of: {VALID_TRUNCATIONS}.")
-            ds = upsample_terrain_ds(ds, target_resolution=target_resolution, grid=grid)
+            ds = upsample_terrain_ds(ds, grid=grid)
             orography, fmask = jnp.asarray(ds['orog']), jnp.asarray(ds['lsm'])
         elif orography.shape not in VALID_NODAL_SHAPES:
             raise ValueError(f"Invalid terrain data shape: {orography.shape}. Must be one of: {VALID_NODAL_SHAPES}.")
@@ -88,7 +90,7 @@ class TerrainData:
 
     @classmethod
     def from_coords(cls, coords: CoordinateSystem, orography=None, fmask=None, lfluxland=False,
-                    terrain_file=None, interpolate=False, truncation_number=None):
+                    terrain_file=None, interpolate=False):
         """Initialize TerrainData from a dinosaur CoordinateSystem.
 
         Args:
@@ -98,7 +100,6 @@ class TerrainData:
             lfluxland (optional): Whether to compute land surface fluxes (default False).
             terrain_file (optional): Path to a file containing a dataset of orog (orography) and lsm (land-sea mask).
             interpolate (optional): Whether to interpolate the terrain data (default False).
-            truncation_number (optional): Spectral truncation number for surface geopotential. If None, inferred from coords.
 
         Returns:
             TerrainData object
@@ -110,15 +111,15 @@ class TerrainData:
             orography=orography,
             nodal_shape=coords.horizontal.nodal_shape,
             terrain_file=terrain_file,
-            target_resolution=coords.horizontal.total_wavenumbers - 2 if interpolate else None
+            grid=coords.horizontal if interpolate else None
         )
         phi0 = grav * orog
-        phis0 = spectral_truncation(coords.horizontal, phi0, truncation_number=truncation_number)
+        phis0 = spectral_truncation(coords.horizontal, phi0)
 
         return cls(orog=orog, phis0=phis0, fmask=fmask, lfluxland=jnp.bool_(lfluxland))
 
     @classmethod
-    def from_file(cls, terrain_file, coords: CoordinateSystem, target_resolution=None, lfluxland=True, truncation_number=None):
+    def from_file(cls, terrain_file, coords: CoordinateSystem, lfluxland=True):
         """Initialize TerrainData from a given terrain file containing orog and lsm.
 
         Args:
@@ -126,14 +127,13 @@ class TerrainData:
             coords: dinosaur.coordinate_systems.CoordinateSystem object.
             target_resolution (optional): Spectral truncation to interpolate the terrain data to, default None (no interpolation).
             lfluxland (optional): Whether to compute land surface fluxes (default True).
-            truncation_number (optional): Spectral truncation number for surface geopotential. If None, inferred from coords.
 
         Returns:
 
             TerrainData object
 
         """
-        orography, fmask = get_terrain(terrain_file=terrain_file, target_resolution=target_resolution, grid=coords.horizontal)
+        orography, fmask = get_terrain(terrain_file=terrain_file, grid=coords.horizontal)
 
         # Validate that terrain matches coords
         if orography.shape != coords.horizontal.nodal_shape:
@@ -142,7 +142,7 @@ class TerrainData:
             )
 
         phi0 = grav * orography
-        phis0 = spectral_truncation(coords.horizontal, phi0, truncation_number=truncation_number)
+        phis0 = spectral_truncation(coords.horizontal, phi0)
 
         return cls(orog=orography, phis0=phis0, fmask=fmask, lfluxland=jnp.bool_(lfluxland))
 
