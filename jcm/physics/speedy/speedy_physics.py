@@ -47,7 +47,6 @@ class SpeedyPhysics(Physics):
     UNITS_TABLE_CSV_PATH = Path(__file__).parent / "units_table.csv"
 
     def __init__(self,
-                 coords: CoordinateSystem,
                  parameters: Parameters=Parameters.default(),
                  checkpoint_terms=True
     ) -> None:
@@ -59,7 +58,6 @@ class SpeedyPhysics(Physics):
             checkpoint_terms (bool): Flag to indicate if terms should be checkpointed.
 
         """
-        self.coords = coords
         self.parameters = parameters
 
         from jcm.physics.speedy.humidity import spec_hum_to_rel_hum
@@ -92,6 +90,10 @@ class SpeedyPhysics(Physics):
         }
 
         self.terms = physics_terms if not checkpoint_terms else [jax.checkpoint(term, static_argnums=static_argnums.get(term, ()) + (4,)) for term in physics_terms]
+    
+    def initialize_coords(self, coords: CoordinateSystem):
+        self.coords = coords
+        return 
     
     def compute_tendencies(
         self,

@@ -10,6 +10,7 @@ from dinosaur import scales
 from dinosaur.scales import units
 from dinosaur.spherical_harmonic import vor_div_to_uv_nodal, uv_nodal_to_vor_div_modal
 from dinosaur.primitive_equations import get_geopotential, compute_diagnostic_state, State, PrimitiveEquations
+from dinosaur.coordinate_systems import CoordinateSystem
 from dinosaur.filtering import horizontal_diffusion_filter
 from jax import tree_util
 from jcm.forcing import ForcingData
@@ -135,6 +136,9 @@ Attributes:
 
 class Physics:
     UNITS_TABLE_CSV_PATH = None
+
+    def initialize_coords(self, coords: CoordinateSystem):
+        return None
 
     def compute_tendencies(self, state: PhysicsState, forcing: ForcingData, terrain: TerrainData, date: DateData) -> Tuple[PhysicsTendency, Any]:
         """Compute the physical tendencies given the current state and data structs.

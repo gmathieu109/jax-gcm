@@ -77,7 +77,8 @@ class Predictions:
 
         # prepare physics predictions for xarray conversion
         # (e.g. separate multi-channel fields so they are compatible with data_to_xarray)
-        physics_module = physics_module or SpeedyPhysics(coords=coords)
+        physics_module = physics_module or SpeedyPhysics()
+        physics_module.initialize_coords(coords)
         physics_preds_dict = physics_module.data_struct_to_dict(physics_predictions, nodal_shape=nodal_shape)
 
         times = jax.device_get(self.times)
@@ -85,7 +86,9 @@ class Predictions:
 
         pred_ds = data_to_xarray(dynamics_predictions.asdict() | physics_preds_dict, 
                                  coords=coords, serialize_coords_to_attrs=False,
-                                 times=times - times[0])
+                                 times=times - times[0],
+                                 additional_coords={'id': jnp.array([1,2]),
+                                                    'lev_edge': jnp.arange(nodal_shape[0]+1)})
 
         # Import units attribute associated with each xarray output from units_table.csv
         units_df = pd.read_csv(DYNAMICS_UNITS_TABLE_CSV_PATH)
@@ -234,10 +237,8 @@ class Model:
             p0=p0*units.pascal,
         )
         
-        self.physics = physics or SpeedyPhysics(coords=self.coords)
-        # Ensure physics has coords set (important for SpeedyPhysics)
-        if hasattr(self.physics, 'coords') and self.physics.coords is None:
-            self.physics.coords = self.coords
+        self.physics = physics or SpeedyPhysics()
+        self.physics.initialize_coords(self.coords)
 
         self.diffusion = diffusion or DiffusionFilter.default()
 

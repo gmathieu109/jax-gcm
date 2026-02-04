@@ -210,7 +210,7 @@ class TestModelUnit(unittest.TestCase):
         create_model = lambda params=Parameters.default(): Model(
             coords=coords,
             terrain=terrain,
-            physics=SpeedyPhysics(coords=coords,parameters=params),
+            physics=SpeedyPhysics(parameters=params),
         )
 
         fn = lambda params: create_model(params).run(save_interval=1/24., total_time=2./24., forcing=forcing)
@@ -242,7 +242,7 @@ class TestModelUnit(unittest.TestCase):
         create_model = lambda params=Parameters.default(): Model(
             coords=coords,
             terrain=terrain,
-            physics=SpeedyPhysics(coords=coords,parameters=params),
+            physics=SpeedyPhysics(parameters=params),
         )
 
         model_run_wrapper = lambda params: create_model(params).run(save_interval=1/24., total_time=2./24., forcing=forcing)
