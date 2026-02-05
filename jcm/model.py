@@ -58,7 +58,7 @@ class Predictions:
             A final `xarray.Dataset` ready for analysis and plotting.
 
         """
-        from dinosaur.xarray_utils import data_to_xarray
+        from jcm.utils import data_to_xarray
         
         # float0s are placeholders representing the lack of tangent space for non-differentiable variables
         # jax.numpy arrays cannot have float0 dtype, so jcm handles them with numpy arrays
@@ -87,8 +87,8 @@ class Predictions:
         pred_ds = data_to_xarray(dynamics_predictions.asdict() | physics_preds_dict, 
                                  coords=coords, serialize_coords_to_attrs=False,
                                  times=times - times[0],
-                                 additional_coords={'id': jnp.array([1,2]),
-                                                    'lev_edge': jnp.arange(nodal_shape[0]+1)})
+                                 additional_coords={'wvi_id': jnp.array([1,2]),
+                                                    'hsg_level': jnp.arange(nodal_shape[0]+1)})
 
         # Import units attribute associated with each xarray output from units_table.csv
         units_df = pd.read_csv(DYNAMICS_UNITS_TABLE_CSV_PATH)
