@@ -58,7 +58,7 @@ Condensation
      - ``dtlsc``
      - Temperature tendency due to large-scale condensation
    * - ``precls``
-     - kg/m²/s
+     - g/m²/s
      - ``precls``
      - Precipitation due to large-scale condensation
 
