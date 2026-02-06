@@ -24,6 +24,10 @@ from jcm.utils import DYNAMICS_UNITS_TABLE_CSV_PATH, get_coords
 from jcm.diffusion import DiffusionFilter
 import pandas as pd
 from functools import partial
+import logging
+
+# logging.basicConfig(format='%(name)s: %(asctime)s %(levelname)s: %(message)s')
+logger = logging.getLogger(__name__)
 
 _LEGACY_SCAN_API = version.parse(flax_version) < version.parse("0.10.0")
 
@@ -196,7 +200,7 @@ class Model:
 
     def __init__(self, time_step=30.0, geometry: Geometry=None, coords: CoordinateSystem=None,
                  physics: Physics=None, diffusion: DiffusionFilter=None, spmd_mesh: tuple[int, ...]=None,
-                 start_date: jdt.Datetime=jdt.to_datetime('2000-01-01')) -> None:
+                 start_date: jdt.Datetime=jdt.to_datetime('2000-01-01'), log_level=logging.CRITICAL) -> None:
         """Initialize the model with the given time step, save interval, and total time.
         
         Args:
@@ -214,8 +218,13 @@ class Model:
                 Optional tuple describing the SPMD mesh for parallelization
             start_date: 
                 jax_datetime.Datetime object containing start date of the simulation (default January 1, 2000)
+            log_level:
+                (int) indicates what level of messages will be output, use logging.INFO (20) for verbose (defaults logging.CRITICAL)
 
         """
+        # Set root logging level to be log_level so it propagates to other modules
+        logging.getLogger().setLevel(log_level)
+
         self.physics_specs = PHYSICS_SPECS
         self.dt_si = (time_step * units.minute).to(units.second)
         self.dt = self.physics_specs.nondimensionalize(self.dt_si)
@@ -395,6 +404,7 @@ class Model:
 
         """
         from jcm.physics_interface import verify_state
+        jax.debug.callback(logger.info, "Post processing: %s simulated seconds", state.sim_time)
 
         predictions = Predictions(
             dynamics=dynamics_state_to_physics_state(state, self.primitive),
@@ -499,6 +509,8 @@ class Model:
 
         """
         # starts from preexisting self._final_modal_state, then updates self._final_modal_state
+        jax.debug.callback(logger.info, "Model starting with params: forcing: %s, save_interval: %s, total_time: %s, output_averages: %s", 
+                                        forcing, save_interval, total_time, output_averages)
         final_modal_state, predictions = self.run_from_state(
             initial_state=self._final_modal_state,
             forcing=forcing or default_forcing(self.coords.horizontal),
@@ -506,7 +518,7 @@ class Model:
             total_time=total_time,
             output_averages=output_averages
         )
-        
+        jax.debug.callback(logger.info, "Run completed.")
         self._final_modal_state = final_modal_state
         return predictions
 
