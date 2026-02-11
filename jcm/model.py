@@ -78,7 +78,7 @@ class Predictions:
         # prepare physics predictions for xarray conversion
         # (e.g. separate multi-channel fields so they are compatible with data_to_xarray)
         physics_module = physics_module or SpeedyPhysics()
-        physics_module.initialize_coords(coords)
+        physics_module.cache_coords(coords)
         physics_preds_dict = physics_module.data_struct_to_dict(physics_predictions, nodal_shape=nodal_shape)
 
         times = jax.device_get(self.times)
