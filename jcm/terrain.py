@@ -28,6 +28,7 @@ def get_terrain(orography: jnp.ndarray = None, fmask: jnp.ndarray = None, nodal_
         Land-sea mask (ix, il)
 
     """
+    # the spectral resolution is total wavenumbers - 2
     target_resolution = grid.total_wavenumbers - 2 if grid is not None else None
 
     if fmask is None and orography is None:

@@ -84,6 +84,7 @@ def spectral_truncation(grid: HorizontalGridTypes, grid_field):
     n_indices, m_indices = jnp.meshgrid(jnp.arange(nx), jnp.arange(mx), indexing='ij')
     total_wavenumber = m_indices + n_indices
 
+    # the spectral resolution is total wavenumbers - 2
     truncation_number = (grid.total_wavenumbers - 2)
 
     spectral_field = jnp.where(total_wavenumber > truncation_number, 0.0, spectral_field)

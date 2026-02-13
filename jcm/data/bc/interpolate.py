@@ -131,7 +131,7 @@ def upsample_terrain_ds(ds: xr.Dataset, grid: HorizontalGridTypes) -> xr.Dataset
     return ds_interp
 
 def interpolate(grid, output_dir=None):
-    f"""Interpolate T30 forcing and terrain data to target resolution (inferred from grid) and save to output directory.
+    f"""Interpolate T30 forcing and terrain data to target resolution (defined by grid) and save to output directory.
 
     Reads the original T30 resolution forcing and terrain data from package resources,
     interpolates them to the target spectral resolution, and writes the output files.
@@ -153,6 +153,7 @@ def interpolate(grid, output_dir=None):
     forcing_original_file = bc_dir / "t30/clim/forcing.nc"
     terrain_original_file = bc_dir / "t30/clim/terrain.nc"
 
+    # the spectral resolution is total wavenumbers - 2
     target_resolution = grid.total_wavenumbers - 2  
 
     # Write output files to current working directory (or specified output_dir)

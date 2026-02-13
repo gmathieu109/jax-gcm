@@ -67,6 +67,7 @@ class ForcingData:
         }
 
         validate_ds(ds, expected_structure)
+        # the spectral resolution is total wavenumbers - 2
         target_resolution = coords.horizontal.total_wavenumbers - 2 if coords is not None else None
 
         if target_resolution is None:
