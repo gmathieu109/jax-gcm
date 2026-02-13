@@ -32,23 +32,26 @@ def get_terrain(orography: jnp.ndarray = None, fmask: jnp.ndarray = None, nodal_
 
     if fmask is None and orography is None:
         if terrain_file is None:
+            # if only nodal shape is provided, return zeros of that shape
             if nodal_shape is None:
                 raise ValueError("Must provide at least one of: fmask, orography, terrain_file, or nodal_shape.")
             return jnp.zeros(nodal_shape), jnp.zeros(nodal_shape)
 
+        # if only terrain file is provided, set orography and fmask from terrain file
         import xarray as xr
         from jcm.data.bc.interpolate import upsample_terrain_ds
         ds = xr.open_dataset(terrain_file)
         validate_ds(ds, expected_structure={"lsm": ("lon", "lat"), "orog": ("lon", "lat")})
-        orography, fmask = jnp.asarray(ds['orog']), jnp.asarray(ds['lsm'])
         if target_resolution is not None:
             if target_resolution not in VALID_TRUNCATIONS:
                 raise ValueError(f"Invalid target resolution: {target_resolution}. Must be one of: {VALID_TRUNCATIONS}.")
             ds = upsample_terrain_ds(ds, grid=grid)
-            orography, fmask = jnp.asarray(ds['orog']), jnp.asarray(ds['lsm'])
         elif orography.shape not in VALID_NODAL_SHAPES:
             raise ValueError(f"Invalid terrain data shape: {orography.shape}. Must be one of: {VALID_NODAL_SHAPES}.")
-
+        
+        # set orography and fmask after upsampling happens
+        orography, fmask = jnp.asarray(ds['orog']), jnp.asarray(ds['lsm'])
+        
     elif fmask is None:
         # If orography provided but fmask not, default fmask to any orography > 0
         fmask = (orography > 0.0).astype(jnp.float32)
@@ -90,7 +93,7 @@ class TerrainData:
         )
 
     @classmethod
-    def from_coords(cls, coords: CoordinateSystem, orography=None, fmask=None, lfluxland=False,
+    def from_coords(cls, coords: CoordinateSystem, orography=None, fmask=None, lfluxland=None,
                     terrain_file=None, interpolate=False):
         """Initialize TerrainData from a dinosaur CoordinateSystem.
 
@@ -98,7 +101,7 @@ class TerrainData:
             coords: dinosaur.coordinate_systems.CoordinateSystem object.
             orography (optional): Orography height (m), shape (ix, il). If None, defaults to zeros.
             fmask (optional): Fractional land-sea mask, shape (ix, il). If None, defaults to zeros (all ocean).
-            lfluxland (optional): Whether to compute land surface fluxes (default False).
+            lfluxland (optional): Whether to compute land surface fluxes (defaults to False if not provided).
             terrain_file (optional): Path to a file containing a dataset of orog (orography) and lsm (land-sea mask).
             interpolate (optional): Whether to interpolate the terrain data (default False).
 
@@ -114,6 +117,14 @@ class TerrainData:
             terrain_file=terrain_file,
             grid=coords.horizontal if interpolate else None
         )
+
+        # if the user did not specify lfluxland, and fmask is > 0 anywhere (i.e. there is some land), 
+        # set lfluxland to True, otherwise set to False if not specified
+        if jnp.sum(fmask) > 0 and lfluxland is None:
+            lfluxland = True
+        elif lfluxland is None:
+            lfluxland = False
+
         phi0 = grav * orog
         phis0 = spectral_truncation(coords.horizontal, phi0)
 
