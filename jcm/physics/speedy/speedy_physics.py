@@ -115,7 +115,6 @@ class SpeedyPhysics(Physics):
             Object containing physics data (PhysicsData format)
 
         """
-
         # Initialize physics data with speedy_coords cached
         data = PhysicsData.zeros(
             self.coords.horizontal.nodal_shape,
