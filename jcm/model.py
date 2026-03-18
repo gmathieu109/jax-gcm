@@ -81,9 +81,13 @@ class Predictions:
 
         # prepare physics predictions for xarray conversion
         # (e.g. separate multi-channel fields so they are compatible with data_to_xarray)
-        physics_module = physics_module or SpeedyPhysics()
-        physics_module.cache_coords(coords)
-        physics_preds_dict = physics_module.data_struct_to_dict(physics_predictions, nodal_shape=nodal_shape)
+        physics_preds_dict = {}
+        if physics_module is not None:
+            physics_module.cache_coords(coords)
+            physics_preds_dict = physics_module.data_struct_to_dict(
+                physics_predictions,
+                nodal_shape=nodal_shape,
+            )
 
         times = jax.device_get(self.times)
         coords = jax.device_get(coords)
@@ -96,8 +100,11 @@ class Predictions:
 
         # Import units attribute associated with each xarray output from units_table.csv
         units_df = pd.read_csv(DYNAMICS_UNITS_TABLE_CSV_PATH)
-        if physics_module.UNITS_TABLE_CSV_PATH is not None:
-            units_df = pd.concat([units_df, pd.read_csv(physics_module.UNITS_TABLE_CSV_PATH)], ignore_index=True)
+        if physics_module is not None and physics_module.UNITS_TABLE_CSV_PATH is not None:
+            units_df = pd.concat(
+                [units_df, pd.read_csv(physics_module.UNITS_TABLE_CSV_PATH)],
+                ignore_index=True,
+            )
         for var, unit, desc in zip(units_df["Variable"], units_df["Units"], units_df["Description"]):
             if var in pred_ds:
                 pred_ds[var].attrs["units"] = unit
@@ -246,8 +253,9 @@ class Model:
             p0=p0*units.pascal,
         )
         
-        self.physics = physics or SpeedyPhysics()
-        self.physics.cache_coords(self.coords)
+        self.physics = physics
+        if self.physics is not None:
+            self.physics.cache_coords(self.coords)
 
         self.diffusion = diffusion or DiffusionFilter.default()
 
@@ -377,22 +385,37 @@ class Model:
             A function that, when optionally passed a DiagnosticsCollector, will return a function representing one step of the model, which will write to that DiagnosticsCollector.
 
         """
-        physics_forcing_eqn = lambda d: ExplicitODE.from_functions(lambda state:
-            get_physical_tendencies(
-                state=state,
-                dynamics=self.primitive,
-                time_step=self.dt_si.m,
-                physics=self.physics,
-                forcing=forcing,
-                terrain=self.terrain,
-                diffusion=self.diffusion,
-                date=self._date_from_sim_time(state.sim_time),
-                diagnostics_collector=d
+        if self.physics is None:
+            unfiltered_step_fn = lambda d: dinosaur.time_integration.imex_rk_sil3(
+                self.primitive,
+                self.dt,
             )
+        else:
+            physics_forcing_eqn = lambda d: ExplicitODE.from_functions(lambda state:
+                get_physical_tendencies(
+                    state=state,
+                    dynamics=self.primitive,
+                    time_step=self.dt_si.m,
+                    physics=self.physics,
+                    forcing=forcing,
+                    terrain=self.terrain,
+                    diffusion=self.diffusion,
+                    date=self._date_from_sim_time(state.sim_time),
+                    diagnostics_collector=d
+                )
+            )
+            primitive_with_speedy = lambda d: dinosaur.time_integration.compose_equations(
+                [self.primitive, physics_forcing_eqn(d)]
+            )
+            unfiltered_step_fn = lambda d: dinosaur.time_integration.imex_rk_sil3(
+                primitive_with_speedy(d),
+                self.dt,
+            )
+
+        return lambda d=None: dinosaur.time_integration.step_with_filters(
+            unfiltered_step_fn(d),
+            self.filters,
         )
-        primitive_with_speedy = lambda d: dinosaur.time_integration.compose_equations([self.primitive, physics_forcing_eqn(d)])
-        unfiltered_step_fn = lambda d: dinosaur.time_integration.imex_rk_sil3(primitive_with_speedy(d), self.dt)
-        return lambda d=None: dinosaur.time_integration.step_with_filters(unfiltered_step_fn(d), self.filters)
 
     def _post_process(self, state: primitive_equations.State, forcing: ForcingData, output_averages: bool) -> Predictions:
         """Post-process a single state from the simulation trajectory. This function is called by the integrator at each save point. It converts the dynamical state to a physical state and, if enabled, runs the physics package to compute diagnostic variables.
@@ -415,10 +438,10 @@ class Model:
             times=None
         )
 
-        if not output_averages:
+        if not output_averages and self.physics is not None:
             date = self._date_from_sim_time(state.sim_time)
             clamped_physics_state = verify_state(predictions.dynamics)
-            _, physics_data = self.physics.compute_tendencies(clamped_physics_state, forcing, self.terrain, date)
+            _, physics_data = self.physics.compute_tendencies(clamped_physics_state,forcing, self.terrain, date)
             predictions = predictions.replace(physics=physics_data)
 
         return predictions
@@ -436,7 +459,11 @@ class Model:
             )
 
             # integrate_fn for avgs has different signature b/c empty physics data structure needed for DiagnosticsCollector initialization
-            return integrate_fn(state, self.physics.get_empty_data(self.coords)) if output_averages else integrate_fn(state)
+            if output_averages:
+                empty_physics_data = self.physics.get_empty_data(self.coords) if self.physics is not None else {}
+                return integrate_fn(state, empty_physics_data)
+            else:
+                return integrate_fn(state)
 
         return _integrate_fn
 
